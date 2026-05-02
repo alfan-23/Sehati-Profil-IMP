@@ -4,19 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aplikasi Generator Indikator Mutu Puskesmas</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap)" rel="stylesheet">
+    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="[https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js](https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js)"></script>
+    <script src="[https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js](https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js)"></script>
     
     <style>
         body { font-family: 'Inter', sans-serif; }
         .step-card { transition: all 0.3s ease-in-out; }
         .step-card.active { border-color: #3b82f6; box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.2); }
         .step-card:not(.active) { opacity: 0.7; filter: grayscale(80%); }
-        .loader { border-top-color: #3498db; animation: spin 1s linear infinite; }
+        .loader {
+            border-top-color: #3498db;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+        }
+        @-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         #collection-output table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; background-color: white;}
         #collection-output th, #collection-output td { border: 1px solid #d1d5db; padding: 12px; text-align: left; vertical-align: top; }
@@ -24,7 +29,10 @@
         #collection-output td { color: #374151; }
         #collection-output h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #1e3a8a; text-align: center; text-transform: uppercase;}
         #collection-output ul { list-style-type: disc; padding-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
-        .no-select { user-select: none; }
+        
+        .pdf-print-mode { width: 900px !important; max-width: none !important; padding: 40px !important; background: white !important; }
+        .pdf-print-mode button { display: none !important; }
+        .no-select { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -55,18 +63,23 @@
             </div>
 
             <div id="selection-screen">
+                
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-blue-200 mb-8 flex flex-col md:flex-row justify-between gap-4 items-center">
                     <div class="w-full md:w-1/2">
-                        <h2 class="text-lg font-bold text-blue-800 mb-1 flex items-center"><i class="fas fa-key mr-2"></i> Sinkronisasi API Key</h2>
-                        <p class="text-xs text-gray-600 mb-1">Dikelola otomatis oleh Portal SEHATI - AI.</p>
+                        <h2 class="text-lg font-bold text-blue-800 mb-1 flex items-center">
+                            <i class="fas fa-key mr-2"></i> Sinkronisasi API Key
+                        </h2>
+                        <p class="text-xs text-gray-600 mb-1">Dikelola secara otomatis oleh sistem Portal SEHATI - AI.</p>
                     </div>
                     <div class="w-full md:w-1/2 flex flex-col">
                         <div class="flex gap-2">
-                            <input type="password" id="api-key-input" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" placeholder="Sinkronisasi token..." readonly>
-                            <button onclick="saveApiKey()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition-colors text-sm shadow">Cek Status</button>
+                            <input type="password" id="api-key-input" style="-webkit-user-select: text; user-select: text;" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" placeholder="Sinkronisasi token..." readonly>
+                            <button onclick="saveApiKey()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition-colors text-sm whitespace-nowrap shadow">
+                                Cek Status
+                            </button>
                         </div>
                         <div class="flex justify-between items-center mt-2">
-                            <p class="text-[10px] text-gray-500">Model AI: <span id="active-model-display" class="font-mono text-blue-600 font-bold">Menunggu...</span></p>
+                            <p class="text-[10px] text-gray-500">Model: <span id="active-model-display" class="font-mono text-blue-600 font-semibold">Menunggu konfigurasi...</span></p>
                             <div id="api-status" class="text-xs font-bold text-right hidden"></div>
                         </div>
                     </div>
@@ -81,59 +94,69 @@
                     <div onclick="startWorkflow('imppel')" class="cursor-pointer bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow border-2 border-transparent hover:border-emerald-500 relative flex flex-col">
                         <div class="absolute -top-3 -left-3 bg-emerald-600 text-white w-8 h-8 flex items-center justify-center rounded-full font-bold shadow-md">2</div>
                         <h2 class="text-xl font-bold text-emerald-700 mb-2">Buat IMPPel (Unit)</h2>
-                        <p class="text-gray-600 text-sm">Turunkan IMPP menjadi indikator spesifik di tingkat unit layanan ILP.</p>
+                        <p class="text-gray-600 text-sm">Turunkan IMPP menjadi indikator spesifik di tingkat unit/layanan ILP.</p>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow border-2 border-transparent hover:border-amber-500 relative flex flex-col justify-between">
                         <div>
                             <div class="absolute -top-3 -left-3 bg-amber-500 text-white w-8 h-8 flex items-center justify-center rounded-full font-bold shadow-md">3</div>
                             <h2 class="text-xl font-bold text-amber-700 mb-2">Unggah & Koleksi</h2>
-                            <p class="text-gray-600 text-sm mb-4">Pulihkan data dengan mengunggah file hasil unduhan (.txt atau .pdf).</p>
+                            <p class="text-gray-600 text-sm mb-4">Unggah file PDF/TXT hasil unduhan dari aplikasi ini untuk memulihkan data koleksi indikator.</p>
                         </div>
                         <div class="flex flex-col gap-2">
-                            <button onclick="document.getElementById('upload-file-input').click()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded shadow-sm text-sm">Unggah File (.txt / .pdf)</button>
+                            <button onclick="document.getElementById('upload-file-input').click()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded shadow-sm transition-colors text-sm">
+                                Unggah File (.pdf / .txt)
+                            </button>
                             <input type="file" id="upload-file-input" accept=".txt,.pdf" class="hidden" onchange="handleFileUpload(event)">
-                            <button onclick="showCollection()" class="w-full bg-white border border-amber-400 text-amber-700 hover:bg-amber-50 font-bold py-2 px-3 rounded shadow-sm text-sm">Lihat <span id="main-menu-badge">0</span> Tersimpan</button>
+                            <button onclick="showCollection()" class="w-full bg-white border border-amber-400 text-amber-700 hover:bg-amber-50 font-bold py-2 px-3 rounded shadow-sm transition-colors text-sm">
+                                Lihat <span id="main-menu-badge">0</span> Tersimpan
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div id="workflow-container" class="hidden">
-                <button onclick="goHome()" class="mb-6 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg inline-flex items-center transition-colors">Kembali ke Menu Utama</button>
+                <button onclick="goHome()" class="mb-6 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg inline-flex items-center transition-colors">
+                    <svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>
+                    Kembali ke Menu Utama
+                </button>
                 <h2 id="workflow-title" class="text-2xl font-bold text-center mb-8 text-blue-800"></h2>
 
                 <div id="impp-workflow" class="space-y-6 hidden">
                     <div id="impp-step-1" class="step-card bg-white p-6 rounded-lg shadow-sm border-2">
                         <h3 class="font-bold text-lg mb-3 text-blue-600">Langkah 1: Tentukan Area Prioritas</h3>
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Kategori Area Prioritas</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Kategori Area Prioritas (Wajib)</label>
                             <div class="space-y-2">
-                                <label class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-blue-100 cursor-pointer border"><input type="radio" name="priority_category" value="Masalah yang sering terjadi (volume tinggi)" class="mr-3">Masalah yang sering terjadi (volume tinggi)</label>
-                                <label class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-blue-100 cursor-pointer border"><input type="radio" name="priority_category" value="Proses yang berisiko tinggi (risiko tinggi)" class="mr-3">Proses yang berisiko tinggi (risiko tinggi)</label>
-                                <label class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-blue-100 cursor-pointer border"><input type="radio" name="priority_category" value="Proses yang cenderung menimbulkan masalah (problem-prone)" class="mr-3">Proses yang cenderung menimbulkan masalah (problem-prone)</label>
-                                <label class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-blue-100 cursor-pointer border"><input type="radio" name="priority_category" value="Kebijakan strategis" class="mr-3">Kebijakan strategis</label>
-                                <label class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-blue-100 cursor-pointer border"><input type="radio" name="priority_category" value="Kebutuhan pasien/masyarakat" class="mr-3">Kebutuhan pasien/masyarakat</label>
+                                <label class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-blue-100 cursor-pointer border"><input type="radio" name="priority_category" value="Masalah yang sering terjadi (volume tinggi)" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"><span class="ml-3 text-gray-700">Masalah yang sering terjadi (volume tinggi)</span></label>
+                                <label class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-blue-100 cursor-pointer border"><input type="radio" name="priority_category" value="Proses yang berisiko tinggi (risiko tinggi)" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"><span class="ml-3 text-gray-700">Proses yang berisiko tinggi (risiko tinggi)</span></label>
+                                <label class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-blue-100 cursor-pointer border"><input type="radio" name="priority_category" value="Proses yang cenderung menimbulkan masalah (problem-prone)" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"><span class="ml-3 text-gray-700">Proses yang cenderung menimbulkan masalah (problem-prone)</span></label>
+                                <label class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-blue-100 cursor-pointer border"><input type="radio" name="priority_category" value="Kebijakan strategis dari pemerintah atau manajemen fasyankes" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"><span class="ml-3 text-gray-700">Kebijakan strategis</span></label>
+                                <label class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-blue-100 cursor-pointer border"><input type="radio" name="priority_category" value="Kebutuhan dan harapan pasien/masyarakat" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"><span class="ml-3 text-gray-700">Kebutuhan dan harapan pasien/masyarakat</span></label>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Masalah</label>
-                            <textarea id="priority-area" style="user-select: text;" class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" rows="5" placeholder="Jelaskan detail masalah..."></textarea>
+                            <label for="priority-area" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Masalah (Wajib)</label>
+                            <textarea id="priority-area" style="-webkit-user-select: text; user-select: text;" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="5" placeholder="Jelaskan detail masalah riil di Puskesmas. AI akan menganalisis solusi terbaiknya..."></textarea>
                         </div>
-                        <button onclick="getImppSuggestions(false)" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow">Analisis & Dapatkan Saran Judul IMPP</button>
+                        <button onclick="getImppSuggestions(false)" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow">Analisis & Dapatkan Saran Judul IMPP</button>
                     </div>
 
                     <div id="impp-step-2" class="step-card bg-white p-6 rounded-lg shadow-sm border-2 hidden">
                         <h3 class="font-bold text-lg mb-3 text-blue-600">Langkah 2: Pilih Judul IMPP</h3>
+                        <p class="text-sm text-gray-500 mb-4">Pilih salah satu tujuan mutu strategis. Pilihan Anda akan disimpan otomatis sebagai acuan.</p>
                         <div id="impp-suggestions-list" class="space-y-2"></div>
-                        <div id="impp-loader" class="hidden flex justify-center items-center p-4"><div class="loader rounded-full border-4 border-blue-600 h-10 w-10"></div></div>
+                        <div id="impp-loader" class="hidden flex justify-center items-center p-4">
+                            <div class="loader ease-linear rounded-full border-4 border-t-4 border-blue-600 h-10 w-10"></div><p class="ml-4 text-gray-600 font-medium">AI sedang merumuskan sasaran strategis...</p>
+                        </div>
                         <div class="mt-6 flex flex-col space-y-3">
                             <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                                <label class="block text-sm font-bold text-blue-800 mb-1">Sesuaikan Judul (Bisa Diedit):</label>
-                                <input type="text" id="custom-impp-title" class="w-full p-2 border border-blue-300 rounded bg-white">
+                                <label for="custom-impp-title" class="block text-sm font-bold text-blue-800 mb-1">Sesuaikan Judul Pilihan (Bisa Diedit):</label>
+                                <input type="text" id="custom-impp-title" style="-webkit-user-select: text; user-select: text;" class="w-full p-2 border border-blue-300 rounded focus:ring-blue-500 focus:border-blue-500 bg-white" placeholder="Pilih saran di atas atau ketik judul Anda sendiri...">
                             </div>
-                            <div class="flex space-x-3">
-                                <button onclick="getImppSuggestions(true)" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg">Saran Lain</button>
-                                <button onclick="generateProfile('impp')" class="w-2/3 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow">Buat Profil & Simpan Acuan</button>
+                            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+                                <button onclick="getImppSuggestions(true)" class="w-full sm:w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg transition-colors">Saran Lain</button>
+                                <button onclick="generateProfile('impp')" class="w-full sm:w-2/3 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow">Buat Profil & Simpan Acuan</button>
                             </div>
                         </div>
                     </div>
@@ -142,104 +165,208 @@
                 <div id="imppel-workflow" class="space-y-6 hidden">
                     <div id="imppel-step-1" class="step-card bg-white p-6 rounded-lg shadow-sm border-2">
                         <h3 class="font-bold text-lg mb-3 text-emerald-600">Langkah 1: Konfirmasi IMPP Acuan</h3>
-                        <textarea id="imppel-acuan-text" class="w-full p-3 border border-emerald-300 rounded-md bg-emerald-50" rows="3"></textarea>
-                        <button onclick="activateStep('imppel-step-2')" class="mt-4 w-full bg-emerald-600 text-white font-bold py-3 px-4 rounded-lg">Lanjutkan ke Pemilihan Hierarki ILP</button>
+                        <p class="text-sm text-gray-600 mb-3">Indikator unit (IMPPel) harus selaras dan mendukung tercapainya indikator utama (IMPP).</p>
+                        <textarea id="imppel-acuan-text" style="-webkit-user-select: text; user-select: text;" class="w-full p-3 border border-emerald-300 rounded-md font-semibold text-emerald-900 bg-emerald-50 focus:ring-emerald-500 focus:border-emerald-500" rows="3" placeholder="Belum ada IMPP yang disimpan. Ketik judul IMPP secara manual di sini..."></textarea>
+                        <button onclick="activateStep('imppel-step-2')" class="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow">Lanjutkan ke Pemilihan Hierarki ILP</button>
                     </div>
 
                     <div id="imppel-step-2" class="step-card bg-white p-6 rounded-lg shadow-sm border-2 hidden">
                         <h3 class="font-bold text-lg mb-3 text-emerald-600">Langkah 2: Pilih Hierarki ILP</h3>
+                        <p class="text-sm text-gray-500 mb-4">Pilih Klaster, Program, Kegiatan, hingga Sub Kegiatan spesifik tempat indikator ini akan diterapkan.</p>
+                        
                         <div class="space-y-4 bg-gray-50 p-4 rounded-lg border">
-                            <div><label>Klaster</label><select id="ilp-klaster" onchange="updateIlpProgram()" class="w-full p-2 border rounded-md"><option value="">-- Pilih Klaster --</option></select></div>
-                            <div><label>Program</label><select id="ilp-program" onchange="updateIlpKegiatan()" class="w-full p-2 border rounded-md" disabled></select></div>
-                            <div><label>Kegiatan</label><select id="ilp-kegiatan" onchange="updateIlpSubKegiatan()" class="w-full p-2 border rounded-md" disabled></select></div>
-                            <div><label>Sub Kegiatan</label><select id="ilp-subkegiatan" class="w-full p-2 border rounded-md" disabled></select></div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Klaster</label>
+                                <select id="ilp-klaster" onchange="updateIlpProgram()" class="w-full p-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"><option value="">-- Pilih Klaster --</option></select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Program</label>
+                                <select id="ilp-program" onchange="updateIlpKegiatan()" class="w-full p-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500" disabled><option value="">-- Pilih Program --</option></select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Kegiatan</label>
+                                <select id="ilp-kegiatan" onchange="updateIlpSubKegiatan()" class="w-full p-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500" disabled><option value="">-- Pilih Kegiatan --</option></select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Sub Kegiatan / Rincian Teknis</label>
+                                <select id="ilp-subkegiatan" class="w-full p-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500" disabled><option value="">-- Pilih Sub Kegiatan --</option></select>
+                            </div>
                         </div>
-                        <button onclick="getImppelSuggestions(false)" class="mt-4 w-full bg-emerald-600 text-white font-bold py-3 px-4 rounded-lg">Minta AI Merumuskan Judul</button>
+                        <button onclick="getImppelSuggestions(false)" class="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow">Minta AI Merumuskan Judul</button>
                     </div>
 
                     <div id="imppel-step-3" class="step-card bg-white p-6 rounded-lg shadow-sm border-2 hidden">
-                        <h3 class="font-bold text-lg mb-3 text-emerald-600">Langkah 3: Pilih Judul IMPPel</h3>
+                        <h3 class="font-bold text-lg mb-3 text-emerald-600">Langkah 3: Pilih Judul IMPPel (Unit)</h3>
+                        <p class="text-sm text-gray-500 mb-4">Saran indikator di bawah ini dirumuskan khusus untuk kegiatan ILP yang Anda pilih agar mendukung IMPP utama.</p>
                         <div id="imppel-suggestions-list" class="space-y-2"></div>
-                        <div id="imppel-loader" class="hidden flex justify-center items-center p-4"><div class="loader rounded-full border-4 border-emerald-600 h-10 w-10"></div></div>
+                        <div id="imppel-loader" class="hidden flex justify-center items-center p-4">
+                            <div class="loader ease-linear rounded-full border-4 border-t-4 border-emerald-600 h-10 w-10"></div><p class="ml-4 text-gray-600 font-medium">AI sedang menganalisis kaitan kegiatan dengan IMPP...</p>
+                        </div>
                         <div class="mt-6 flex flex-col space-y-3">
-                            <div class="bg-emerald-50 p-4 rounded-lg border">
-                                <label>Sesuaikan Judul:</label>
-                                <input type="text" id="custom-imppel-title" class="w-full p-2 border rounded bg-white">
+                            <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+                                <label for="custom-imppel-title" class="block text-sm font-bold text-emerald-800 mb-1">Sesuaikan Judul Pilihan (Bisa Diedit):</label>
+                                <input type="text" id="custom-imppel-title" style="-webkit-user-select: text; user-select: text;" class="w-full p-2 border border-emerald-300 rounded focus:ring-emerald-500 focus:border-emerald-500 bg-white" placeholder="Pilih saran di atas atau ketik judul indikator unit Anda sendiri...">
                             </div>
-                            <div class="flex space-x-3">
-                                <button onclick="getImppelSuggestions(true)" class="w-1/3 bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg">Saran Lain</button>
-                                <button onclick="generateProfile('imppel')" class="w-2/3 bg-green-600 text-white font-bold py-3 px-4 rounded-lg">Buat Profil & Simpan</button>
+                            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+                                <button onclick="getImppelSuggestions(true)" class="w-full sm:w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg transition-colors">Saran Lain</button>
+                                <button onclick="generateProfile('imppel')" class="w-full sm:w-2/3 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow">Buat Profil & Simpan ke Koleksi</button>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div id="collection-step" class="step-card bg-white p-6 rounded-lg shadow-sm border-2 hidden">
-                    <div class="flex justify-between items-center mb-6 border-b pb-4">
-                        <h3 class="font-bold text-2xl text-blue-800">Koleksi Indikator Tersimpan</h3>
+                <div id="collection-step" class="step-card bg-white p-4 sm:p-6 rounded-lg shadow-sm border-2 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 border-b pb-4 gap-4">
+                        <h3 class="font-bold text-2xl text-blue-800 text-center sm:text-left">Koleksi Indikator Mutu Tersimpan</h3>
                         <div class="flex gap-2">
-                            <button onclick="clearStorage()" class="text-xs bg-red-100 text-red-700 px-3 py-2 rounded-lg">Hapus Riwayat</button>
-                            <span id="collection-count-badge" class="bg-blue-100 text-blue-800 font-bold px-4 py-2 rounded-full text-sm">0 Indikator</span>
+                            <button onclick="clearStorage()" class="text-xs bg-red-100 hover:bg-red-200 text-red-700 font-semibold px-3 py-2 rounded-lg border border-red-300 transition">Hapus Riwayat</button>
+                            <span id="collection-count-badge" class="bg-blue-100 text-blue-800 font-bold px-4 py-2 rounded-full text-sm shadow-sm whitespace-nowrap">0 Indikator</span>
                         </div>
                     </div>
                     
-                    <div id="profile-loader" class="hidden flex justify-center items-center p-8"><div class="loader border-blue-600 h-12 w-12"></div></div>
+                    <div id="profile-loader" class="hidden flex justify-center items-center p-8">
+                        <div class="loader ease-linear rounded-full border-4 border-t-4 border-blue-600 h-12 w-12"></div><p class="ml-4 text-gray-600 font-medium">Menyusun dokumen koleksi indikator...</p>
+                    </div>
                     
                     <div id="collection-output-container" class="hidden">
-                        <div id="collection-output" class="p-6 border rounded-md bg-white overflow-x-auto text-sm space-y-8 shadow-inner"></div>
+                        <div id="collection-output" class="p-2 sm:p-6 border rounded-md bg-white overflow-x-auto text-sm space-y-8 shadow-inner min-h-[300px]">
+                            </div>
                         
-                        <div class="mt-10 flex flex-col space-y-4 pt-6 border-t">
-                            <button onclick="continueToImppel()" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-2 border-emerald-400 font-bold py-4 px-4 rounded-xl transition-colors shadow flex items-center justify-center text-lg">
-                                <i class="fa-solid fa-plus-circle mr-2"></i> Tambah IMPPel / Indikator Unit Lainnya
+                        <div class="mt-8 flex flex-col space-y-4">
+                            <button onclick="continueToImppel()" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-2 border-emerald-400 font-bold py-3 px-4 rounded-lg transition-colors shadow-sm flex justify-center items-center text-lg">
+                                <svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                                Tambah IMPPel / Unit Lainnya
                             </button>
-                            
                             <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                                <button onclick="downloadPDF()" class="w-full sm:w-1/2 bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center text-sm transition">
-                                    <i class="fa-solid fa-file-pdf mr-2"></i> Unduh PDF / Cetak Laporan
+                                <button onclick="downloadPDF()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow flex justify-center items-center">
+                                    <svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                    Cetak / Unduh PDF Proporsional
                                 </button>
-                                <button onclick="downloadTXT()" class="w-full sm:w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center text-sm transition">
-                                    <i class="fa-solid fa-file-lines mr-2"></i> Simpan Draft File Teks (.txt)
+                                <button onclick="downloadTXT()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow flex justify-center items-center">
+                                    <svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                    Simpan Teks Lengkap (.txt)
                                 </button>
                             </div>
                         </div>
-                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // HIERARKI ILP FULL 100% TIDAK ADA YANG DIHAPUS
+        // Database Hierarki ILP Berdasarkan File PDF
         const ilpDatabase = {
             "KLASTER 1: MANAJEMEN": {
                 "Program 1: Penyelenggaraan Manajemen Puskesmas": {
-                    "Kegiatan: Perencanaan (P1)": ["Membentuk Tim Perencanaan Puskesmas", "Melakukan Analisis Situasi (Pengumpulan dan Analisis Data, termasuk Survei Mawas Diri/SMD)", "Melakukan Perumusan Masalah (Identifikasi, Penetapan Prioritas, Mencari Akar Penyebab)", "Menyusun dokumen Perencanaan Lima Tahunan dan Tahunan (RUK dan RPK)"],
-                    "Kegiatan: Penggerakan dan Pelaksanaan (P2)": ["Melaksanakan Lokakarya Mini Bulanan", "Melaksanakan Lokakarya Mini Tribulanan"],
-                    "Kegiatan: Pengawasan, Pengendalian, dan Penilaian Kinerja (P3)": ["Melaksanakan Pengawasan Internal (audit internal dan supervisi)", "Menerima Pengawasan Eksternal (Dinkes & Akreditasi)", "Melakukan Pengendalian (monitoring & Tinjauan Manajemen)", "Melakukan Penilaian Kinerja Puskesmas (PKP)"]
+                    "Kegiatan: Perencanaan (P1)": [
+                        "Membentuk Tim Perencanaan Puskesmas",
+                        "Melakukan Analisis Situasi (Pengumpulan dan Analisis Data, termasuk Survei Mawas Diri/SMD)",
+                        "Melakukan Perumusan Masalah (Identifikasi, Penetapan Prioritas, Mencari Akar Penyebab)",
+                        "Menyusun dokumen Perencanaan Lima Tahunan dan Tahunan (RUK dan RPK)"
+                    ],
+                    "Kegiatan: Penggerakan dan Pelaksanaan (P2)": [
+                        "Melaksanakan Lokakarya Mini Bulanan",
+                        "Melaksanakan Lokakarya Mini Tribulanan"
+                    ],
+                    "Kegiatan: Pengawasan, Pengendalian, dan Penilaian Kinerja (P3)": [
+                        "Melaksanakan Pengawasan Internal (audit internal dan supervisi)",
+                        "Menerima Pengawasan Eksternal (Dinkes & Akreditasi)",
+                        "Melakukan Pengendalian (monitoring & Tinjauan Manajemen)",
+                        "Melakukan Penilaian Kinerja Puskesmas (PKP)"
+                    ]
                 },
                 "Program 2: Pengelolaan Sumber Daya Puskesmas": {
-                    "Kegiatan: Pengelolaan Keuangan": ["Penyusunan Rencana Kerja Anggaran (RKA)", "Penatausahaan dan Pembukuan Keuangan", "Verifikasi dan Pelaporan Pertanggungjawaban (SPJ)"],
-                    "Kegiatan: Pengelolaan SDM": ["Administrasi Kepegawaian (File, Absensi, Cuti, SKP)", "Analisis Beban Kerja dan Perencanaan Kebutuhan Tenaga", "Pengembangan Kompetensi (Usulan Pelatihan)"],
-                    "Kegiatan: Pengelolaan Aset, Sarana, dan Prasarana": ["Inventarisasi dan Pelabelan Aset", "Pemeliharaan Rutin Sarana dan Prasarana", "Kalibrasi Peralatan Medis", "Pengusulan Penghapusan Aset"],
-                    "Kegiatan: Pengelolaan Sediaan Farmasi & BMHP": ["Perencanaan (LPLPO), Pengadaan, Penerimaan, Penyimpanan", "Pendistribusian, Pengendalian, Stock Opname, Pelaporan"]
+                    "Kegiatan: Pengelolaan Keuangan": [
+                        "Penyusunan Rencana Kerja Anggaran (RKA)",
+                        "Penatausahaan dan Pembukuan Keuangan",
+                        "Verifikasi dan Pelaporan Pertanggungjawaban (SPJ)"
+                    ],
+                    "Kegiatan: Pengelolaan SDM": [
+                        "Administrasi Kepegawaian (File, Absensi, Cuti, SKP)",
+                        "Analisis Beban Kerja dan Perencanaan Kebutuhan Tenaga",
+                        "Pengembangan Kompetensi (Usulan Pelatihan)"
+                    ],
+                    "Kegiatan: Pengelolaan Aset, Sarana, dan Prasarana": [
+                        "Inventarisasi dan Pelabelan Aset",
+                        "Pemeliharaan Rutin Sarana dan Prasarana",
+                        "Kalibrasi Peralatan Medis",
+                        "Pengusulan Penghapusan Aset"
+                    ],
+                    "Kegiatan: Pengelolaan Sediaan Farmasi & BMHP": [
+                        "Perencanaan (LPLPO), Pengadaan, Penerimaan, Penyimpanan",
+                        "Pendistribusian, Pengendalian, Stock Opname, Pelaporan"
+                    ]
                 },
                 "Program 3: Penyelenggaraan PMKP (Peningkatan Mutu & Keselamatan Pasien)": {
-                    "Kegiatan: Perencanaan Mutu": ["Menetapkan Area Prioritas Mutu Klinis & Klaster", "Menyusun Kamus Indikator Mutu (INM & IMPP)", "Menyusun Program Kerja PMKP"],
-                    "Kegiatan: Pengukuran, Analisis, dan Peningkatan Kinerja": ["Pengumpulan data indikator mutu periodik", "Validasi data internal", "Analisis capaian vs target", "Pelaksanaan PDSA/PDCA", "Audit klinis dan audit internal"],
-                    "Kegiatan: Manajemen Risiko": ["Identifikasi risiko proaktif", "Analisis dan evaluasi (grading) risiko", "Penyusunan rencana mitigasi risiko", "Pengelolaan Register Risiko", "Pelaksanaan FMEA untuk proses berisiko tinggi"],
-                    "Kegiatan: Keselamatan Pasien": ["Monitoring 6 Sasaran Keselamatan Pasien (SKP)", "Pelaporan IKP Eksternal (Aplikasi Online)", "Pelaporan IKP Internal (KPC, KTC, KNC)", "Investigasi sederhana insiden", "RCA untuk Sentinel/KTD Berat"],
-                    "Kegiatan: Pencegahan & Pengendalian Infeksi (PPI)": ["Penerapan Kewaspadaan Standar & Transmisi", "Surveilans HAIs", "Investigasi outbreak", "Penerapan Bundles PPI", "Diklat PPI"],
-                    "Kegiatan: K3 (Keselamatan & Kesehatan Kerja)": ["Identifikasi potensi bahaya lingkungan kerja", "Pemeriksaan kesehatan berkala pegawai", "Penanganan Kecelakaan Akibat Kerja", "Penyediaan APD & imunisasi petugas"],
-                    "Kegiatan: Manajemen Fasilitas & Keselamatan (MFK)": ["Manajemen keselamatan & keamanan fasilitas", "Manajemen B3 dan Limbah B3", "Manajemen kedaruratan & bencana", "Manajemen pengamanan kebakaran (APAR)", "Manajemen alat kesehatan", "Manajemen sistem utilitas"]
+                    "Kegiatan: Perencanaan Mutu": [
+                        "Menetapkan Area Prioritas Mutu Klinis & Klaster",
+                        "Menyusun Kamus Indikator Mutu (INM & IMPP)",
+                        "Menyusun Program Kerja PMKP"
+                    ],
+                    "Kegiatan: Pengukuran, Analisis, dan Peningkatan Kinerja": [
+                        "Pengumpulan data indikator mutu periodik",
+                        "Validasi data internal",
+                        "Analisis capaian vs target",
+                        "Pelaksanaan PDSA/PDCA",
+                        "Audit klinis dan audit internal"
+                    ],
+                    "Kegiatan: Manajemen Risiko": [
+                        "Identifikasi risiko proaktif",
+                        "Analisis dan evaluasi (grading) risiko",
+                        "Penyusunan rencana mitigasi risiko",
+                        "Pengelolaan Register Risiko",
+                        "Pelaksanaan FMEA untuk proses berisiko tinggi"
+                    ],
+                    "Kegiatan: Keselamatan Pasien": [
+                        "Monitoring 6 Sasaran Keselamatan Pasien (SKP)",
+                        "Pelaporan IKP Eksternal (Aplikasi Online)",
+                        "Pelaporan IKP Internal (KPC, KTC, KNC)",
+                        "Investigasi sederhana insiden",
+                        "RCA untuk Sentinel/KTD Berat"
+                    ],
+                    "Kegiatan: Pencegahan & Pengendalian Infeksi (PPI)": [
+                        "Penerapan Kewaspadaan Standar & Transmisi",
+                        "Surveilans HAIs",
+                        "Investigasi outbreak",
+                        "Penerapan Bundles PPI",
+                        "Diklat PPI"
+                    ],
+                    "Kegiatan: K3 (Keselamatan & Kesehatan Kerja)": [
+                        "Identifikasi potensi bahaya lingkungan kerja",
+                        "Pemeriksaan kesehatan berkala pegawai",
+                        "Penanganan Kecelakaan Akibat Kerja",
+                        "Penyediaan APD & imunisasi petugas"
+                    ],
+                    "Kegiatan: Manajemen Fasilitas & Keselamatan (MFK)": [
+                        "Manajemen keselamatan & keamanan fasilitas",
+                        "Manajemen B3 dan Limbah B3",
+                        "Manajemen kedaruratan & bencana",
+                        "Manajemen pengamanan kebakaran (APAR)",
+                        "Manajemen alat kesehatan",
+                        "Manajemen sistem utilitas"
+                    ]
                 },
                 "Program 4: Pengelolaan Jejaring & SI": {
-                    "Kegiatan: Manajemen Jejaring": ["Pembinaan teknis jejaring (Pustu, Posyandu)", "Evaluasi kerjasama (MoU/PKS)"],
-                    "Kegiatan: Manajemen SI": ["Pengelolaan SIMPUS & ASIK", "Validasi integrasi SatuSehat", "Analisis dashboard PWS"]
+                    "Kegiatan: Manajemen Jejaring": [
+                        "Pembinaan teknis jejaring (Pustu, Posyandu)",
+                        "Evaluasi kerjasama (MoU/PKS)"
+                    ],
+                    "Kegiatan: Manajemen SI": [
+                        "Pengelolaan SIMPUS & ASIK",
+                        "Validasi integrasi SatuSehat",
+                        "Analisis dashboard PWS"
+                    ]
                 }
             },
             "KLASTER 2: IBU DAN ANAK": {
                 "Program 1: Kes Ibu Hamil, Bersalin, Nifas": {
-                    "Kegiatan: ANC Terpadu": ["Pemeriksaan kehamilan (6x, 10T, USG dokter)", "Skrining TBC pada ibu hamil", "Skrining HIV, Sifilis, Hepatitis B pada ibu hamil", "Skrining kesehatan gigi ibu hamil"],
+                    "Kegiatan: ANC Terpadu": [
+                        "Pemeriksaan kehamilan (6x, 10T, USG dokter)",
+                        "Skrining TBC pada ibu hamil",
+                        "Skrining HIV, Sifilis, Hepatitis B pada ibu hamil",
+                        "Skrining kesehatan gigi ibu hamil"
+                    ],
                     "Kegiatan: Kelas Ibu Hamil": ["Diskusi kelompok & senam hamil"],
                     "Kegiatan: Pemberian Tambahan Asupan Gizi": ["Pemberian MT Bumil KEK (min 90 hari)"],
                     "Kegiatan: Persalinan Normal": ["Pertolongan persalinan di fasyankes"],
@@ -248,24 +375,41 @@
                 "Program 2: Kes Balita & Pra Sekolah": {
                     "Kegiatan: Neonatal Esensial": ["Kunjungan Neonatal (KN1-KN3), Vit K1, Salep Mata, HBO"],
                     "Kegiatan: Pemantauan Tumbuh Kembang": ["Penimbangan, pengukuran, SDIDTK/KPSP"],
-                    "Kegiatan: Imunisasi Rutin": ["Imunisasi dasar bayi (BCG, Polio, DPT, Campak)", "Imunisasi lanjutan baduta"],
+                    "Kegiatan: Imunisasi Rutin": [
+                        "Imunisasi dasar bayi (BCG, Polio, DPT, Campak)",
+                        "Imunisasi lanjutan baduta"
+                    ],
                     "Kegiatan: Tatalaksana Gizi": ["Tatalaksana weight faltering, gizi kurang/buruk, stunting"],
                     "Kegiatan: Pengobatan Balita Sakit": ["Pelayanan MTBS"]
                 },
                 "Program 3: Kes Anak Sekolah & Remaja": {
-                    "Kegiatan: Skrining & Imunisasi": ["Penjaringan kesehatan (Anemia, TBC, PTM, Jiwa)", "Imunisasi BIAS (MR, Dt, Td, HPV)"],
+                    "Kegiatan: Skrining & Imunisasi": [
+                        "Penjaringan kesehatan (Anemia, TBC, PTM, Jiwa)",
+                        "Imunisasi BIAS (MR, Dt, Td, HPV)"
+                    ],
                     "Kegiatan: Pelayanan Klinis": ["Pelayanan PKPR (MTPKR & HEEADSSS)"],
                     "Kegiatan: TTD Remaja Putri": ["Pemberian TTD Rematri (mingguan)"]
                 }
             },
             "KLASTER 3: USIA DEWASA DAN LANJUT USIA": {
                 "Program 1: Kes Dewasa & Lansia": {
-                    "Kegiatan: Skrining PTM": ["Skrining Obesitas (IMT, Lingkar Perut)", "Skrining Hipertensi", "Skrining Diabetes Melitus", "Skrining Jantung & Stroke (EKG, Profil Lipid)", "Skrining Kanker (SADANIS, IVA)", "Skrining Jiwa (SRQ-20, ASSIST)"],
+                    "Kegiatan: Skrining PTM": [
+                        "Skrining Obesitas (IMT, Lingkar Perut)",
+                        "Skrining Hipertensi",
+                        "Skrining Diabetes Melitus",
+                        "Skrining Jantung & Stroke (EKG, Profil Lipid)",
+                        "Skrining Kanker (SADANIS, IVA)",
+                        "Skrining Jiwa (SRQ-20, ASSIST)"
+                    ],
                     "Kegiatan: Kes Gigi & Mulut": ["Pelayanan kuratif & rehabilitatif gigi"],
                     "Kegiatan: Skrining Penyakit Menular": ["Skrining TBC, Malaria, Talasemia"]
                 },
                 "Program 2: Kes Khusus Dewasa": {
-                    "Kegiatan: Kes Reproduksi": ["Pelayanan Catin (KIE, Skrining)", "Skrining Layak Hamil PUS", "Pelayanan KB"],
+                    "Kegiatan: Kes Reproduksi": [
+                        "Pelayanan Catin (KIE, Skrining)",
+                        "Skrining Layak Hamil PUS",
+                        "Pelayanan KB"
+                    ],
                     "Kegiatan: Penyakit Akibat Kerja": ["Diagnosis PAK (7 langkah)"]
                 },
                 "Program 3: Kes Khusus Lansia": {
@@ -280,23 +424,50 @@
                 },
                 "Program 2: Respon Penyakit": {
                     "Kegiatan: PE & Kontak": ["Pelacakan Kontak (Tracing)"],
-                    "Kegiatan: Pengendalian Faktor Risiko": ["Inspeksi Kesehatan Lingkungan (IKL)", "Pengendalian Vektor & Binatang Pembawa Penyakit", "Intervensi Kesehatan Lingkungan"],
-                    "Kegiatan: Respon KLB": ["Pengambilan spesimen/sampel", "Imunisasi ORI"]
+                    "Kegiatan: Pengendalian Faktor Risiko": [
+                        "Inspeksi Kesehatan Lingkungan (IKL)",
+                        "Pengendalian Vektor & Binatang Pembawa Penyakit",
+                        "Intervensi Kesehatan Lingkungan"
+                    ],
+                    "Kegiatan: Respon KLB": [
+                        "Pengambilan spesimen/sampel",
+                        "Imunisasi ORI"
+                    ]
                 }
             },
             "LINTAS KLASTER": {
                 "Program 1: Gawat Darurat": {
-                    "Kegiatan: Pelayanan IGD": ["Triase", "Survei Primer (Resusitasi/Stabilisasi)", "Survei Sekunder", "Tatalaksana Definitif & Rujukan"]
+                    "Kegiatan: Pelayanan IGD": [
+                        "Triase",
+                        "Survei Primer (Resusitasi/Stabilisasi)",
+                        "Survei Sekunder",
+                        "Tatalaksana Definitif & Rujukan"
+                    ]
                 },
                 "Program 2: Kefarmasian": {
-                    "Kegiatan: Farmasi Klinis": ["Pengkajian & Pelayanan Resep", "Pelayanan Informasi Obat (PIO)", "Konseling Obat", "Visite Rawat Inap", "Pemantauan Terapi Obat (PTO)", "Monitoring Efek Samping Obat (MESO)", "Home Pharmacy Care"]
+                    "Kegiatan: Farmasi Klinis": [
+                        "Pengkajian & Pelayanan Resep",
+                        "Pelayanan Informasi Obat (PIO)",
+                        "Konseling Obat",
+                        "Visite Rawat Inap",
+                        "Pemantauan Terapi Obat (PTO)",
+                        "Monitoring Efek Samping Obat (MESO)",
+                        "Home Pharmacy Care"
+                    ]
                 },
                 "Program 3: Laboratorium": {
-                    "Kegiatan: Pemeriksaan Spesimen": ["Pemeriksaan Klinis (Hematologi, Kimia, Urin, dll)", "Pemeriksaan Lingkungan/Vektor"],
+                    "Kegiatan: Pemeriksaan Spesimen": [
+                        "Pemeriksaan Klinis (Hematologi, Kimia, Urin, dll)",
+                        "Pemeriksaan Lingkungan/Vektor"
+                    ],
                     "Kegiatan: Surveilans Lab": ["Surveilans Pasif & Aktif"]
                 },
                 "Program 4: Rawat Inap": {
-                    "Kegiatan: Perawatan Pasien": ["Rawat Inap (max 5 hari)", "Stabilisasi Pra-Rujukan", "Observasi Diagnostik"]
+                    "Kegiatan: Perawatan Pasien": [
+                        "Rawat Inap (max 5 hari)",
+                        "Stabilisasi Pra-Rujukan",
+                        "Observasi Diagnostik"
+                    ]
                 }
             }
         };
@@ -310,31 +481,39 @@
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
             const keyFromUrl = urlParams.get('key');
+
             if (keyFromUrl) {
                 sessionStorage.setItem('sehati_api_key', keyFromUrl);
                 const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
                 window.history.replaceState({path: cleanUrl}, '', cleanUrl);
             }
+
             const sessionKey = sessionStorage.getItem('sehati_api_key');
             if (sessionKey) userApiKey = sessionKey;
             
             loadFromStorage();
+            
             if (userApiKey) {
                 document.getElementById('api-key-input').value = userApiKey;
                 document.getElementById('active-model-display').innerText = activeModel;
-                saveApiKey();
+                saveApiKey(); 
             }
+
             document.getElementById('selection-screen').classList.remove('hidden');
+            document.getElementById('workflow-container').classList.add('hidden');
             updateCounters();
         };
 
         function loadFromStorage() {
             const storedKey = localStorage.getItem('ilp_api_key');
             if (storedKey && !userApiKey) userApiKey = storedKey;
+            
             const storedModel = localStorage.getItem('ilp_active_model');
             if (storedModel) activeModel = storedModel;
+
             const storedImpp = localStorage.getItem('ilp_impp_context');
             if (storedImpp) savedImppContext = JSON.parse(storedImpp);
+
             const storedImppel = localStorage.getItem('ilp_imppel_collection');
             if (storedImppel) imppelCollection = JSON.parse(storedImppel);
         }
@@ -347,40 +526,85 @@
 
         async function saveApiKey() {
             const key = document.getElementById('api-key-input').value;
-            if (!key.trim()) return showModal('API Key kosong.');
+            if (!key.trim()) {
+                showModal('Mohon pastikan API Key sudah terisi.');
+                return;
+            }
+            
             const statusEl = document.getElementById('api-status');
-            statusEl.textContent = 'Mengecek...'; statusEl.className = 'text-xs mt-2 text-blue-600 font-bold text-right block';
+            statusEl.textContent = 'Mengecek Key & Mencari Model AI...';
+            statusEl.className = 'text-xs mt-2 text-blue-600 font-bold text-right block';
+            document.getElementById('active-model-display').innerText = 'Mencari model terbaik...';
+
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key.trim()}`);
-                if (!response.ok) throw new Error("API Key tidak valid.");
+                if (!response.ok) throw new Error("API Key tidak valid atau terblokir.");
+                
                 const data = await response.json();
-                const validModels = data.models.filter(m => m.supportedGenerationMethods?.includes("generateContent") && m.name.includes("gemini"));
-                if(validModels.length === 0) throw new Error("Model tidak kompatibel.");
-                let selected = validModels.find(m => m.name.includes('1.5-flash')) || validModels[0];
+                const validModels = data.models.filter(m => 
+                    m.supportedGenerationMethods && 
+                    m.supportedGenerationMethods.includes("generateContent") && 
+                    m.name.includes("gemini")
+                );
+                
+                if(validModels.length === 0) throw new Error("Tidak ditemukan model yang kompatibel.");
+                
+                let selected = validModels.find(m => m.name.includes('1.5-flash')) || 
+                               validModels.find(m => m.name.includes('flash')) || 
+                               validModels.find(m => m.name.includes('pro')) || 
+                               validModels[0];
+                
                 activeModel = selected.name.replace('models/', '');
                 userApiKey = key.trim();
+                
                 localStorage.setItem('ilp_api_key', userApiKey);
                 localStorage.setItem('ilp_active_model', activeModel);
-                statusEl.textContent = 'Key Valid!'; statusEl.className = 'text-xs mt-2 text-green-600 font-bold text-right block';
+                
+                statusEl.textContent = 'Key Valid!';
+                statusEl.className = 'text-xs mt-2 text-green-600 font-bold text-right block';
                 document.getElementById('active-model-display').innerText = activeModel;
+                
                 setTimeout(() => { statusEl.classList.add('hidden'); }, 3000);
             } catch (err) {
-                statusEl.textContent = `Gagal`; statusEl.className = 'text-xs mt-2 text-red-600 font-bold text-right block';
+                statusEl.textContent = `Error: ${err.message}`;
+                statusEl.className = 'text-xs mt-2 text-red-600 font-bold text-right block';
+                document.getElementById('active-model-display').innerText = 'Gagal verifikasi';
+                showModal(`Gagal memverifikasi API Key.<br><br><b>Pesan:</b> ${err.message}<br>Pastikan perangkat terhubung ke internet.`);
             }
         }
 
+        async function autoDetectModelFallback() {
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${userApiKey}`);
+                if (!response.ok) return 'gemini-1.5-flash';
+                const data = await response.json();
+                const validModels = data.models.filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent") && m.name.includes("gemini"));
+                if(validModels.length > 0) {
+                    let selected = validModels.find(m => m.name.includes('1.5-flash')) || validModels.find(m => m.name.includes('flash')) || validModels[0];
+                    activeModel = selected.name.replace('models/', '');
+                    localStorage.setItem('ilp_active_model', activeModel);
+                    document.getElementById('active-model-display').innerText = activeModel;
+                    return activeModel;
+                }
+            } catch (e) {}
+            return 'gemini-1.5-flash';
+        }
+
         function clearStorage() {
-            if(confirm("Hapus semua riwayat indikator?")) {
+            if(confirm("Apakah Anda yakin ingin MENGHAPUS SEMUA riwayat indikator yang telah Anda buat? Ini tidak dapat dikembalikan.")) {
                 savedImppContext = { title: "", detail: "", html: "" };
                 imppelCollection = [];
-                localStorage.removeItem('ilp_impp_context'); localStorage.removeItem('ilp_imppel_collection');
-                goHome(); showModal("Riwayat dihapus.");
+                localStorage.removeItem('ilp_impp_context');
+                localStorage.removeItem('ilp_imppel_collection');
+                goHome();
+                showModal("Riwayat indikator berhasil dihapus dari memori perangkat.");
             }
         }
 
         function updateCounters() {
             let count = (savedImppContext.html ? 1 : 0) + imppelCollection.length;
             document.getElementById('main-menu-badge').innerText = `${count}`;
+            
             if (savedImppContext.title || imppelCollection.length > 0) {
                 document.getElementById('active-impp-status').classList.remove('hidden');
                 document.getElementById('active-impp-title-display').innerText = savedImppContext.title || "(Belum ada acuan makro)";
@@ -393,19 +617,29 @@
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 const content = e.target.result;
                 const stateMatch = content.match(/###ILP_SAVE_DATA_START###\n(.*?)\n###ILP_SAVE_DATA_END###/s);
+                
                 if (stateMatch) {
                     try {
                         const appState = JSON.parse(stateMatch[1]);
                         savedImppContext = appState.impp || { title: "", detail: "", html: "" };
                         imppelCollection = appState.imppel || [];
-                        saveToStorage(); showModal("File berhasil dipulihkan!"); showCollection();
-                    } catch (err) { showModal("Data rusak."); }
-                } else if (file.name.toLowerCase().endsWith('.txt')) {
+                        saveToStorage();
+                        showModal("File berhasil diunggah! Koleksi dan urutan indikator mutu Anda telah dipulihkan.");
+                        showCollection();
+                    } catch (err) {
+                        showModal("Gagal memulihkan data: Format data di dalam file tersebut rusak.");
+                    }
+                } 
+                else if (file.name.toLowerCase().endsWith('.txt')) {
                     parseLegacyTxt(content.replace(/\r\n/g, '\n'));
+                } 
+                else {
+                    showModal("File PDF ini adalah versi lama. Silakan unggah file '.txt' riwayat Anda.");
                 }
                 event.target.value = ''; 
             };
@@ -415,47 +649,91 @@
         function parseLegacyTxt(text) {
             try {
                 const acuanMatch = text.match(/IMPP STRATEGIS: (.*)/);
-                let newImppContext = { title: acuanMatch ? acuanMatch[1].trim() : "", detail: "Dipulihkan", html: "" };
+                const acuanTitle = acuanMatch ? acuanMatch[1].trim() : "";
+
+                let newImppContext = { title: acuanTitle, detail: "Dipulihkan dari file .txt lama.", html: "" };
                 let newImppelCollection = [];
+
                 const sections = text.split('>>> ');
                 for (let i = 1; i < sections.length; i++) {
                     const section = sections[i];
                     const headerEnd = section.indexOf('<<<');
                     if (headerEnd === -1) continue;
+                    
                     const headerLine = section.substring(0, headerEnd);
                     const contentStr = section.substring(headerEnd + 3).split('--------------------------------------------------')[0].trim();
+                    
                     const pairRegex = /^([^:\n]+):\n([\s\S]*?)(?=\n^[^:\n]+:\n|$)/gm;
-                    let match, html = '<h3>PROFIL INDIKATOR MUTU</h3>\n<table>\n<tbody>\n', profileTitle = '';
+                    let match;
+                    let html = '<h3>PROFIL INDIKATOR MUTU</h3>\n<table>\n<tbody>\n';
+                    let profileTitle = '';
+                    
                     while ((match = pairRegex.exec(contentStr)) !== null) {
-                        const key = match[1].trim(); let val = match[2].trim();
+                        const key = match[1].trim();
+                        let val = match[2].trim();
+                        
                         if (key === 'Judul Indikator') profileTitle = val;
+                        
                         if (val.includes('\n- ') || val.startsWith('- ')) {
-                            let htmlVal = '<ul>'; val.split('\n').forEach(line => {
-                                if(line.trim().startsWith('- ')) htmlVal += `<li>${line.replace(/^- /, '').trim()}</li>`;
-                            }); htmlVal += '</ul>'; val = htmlVal;
-                        } else { val = val.replace(/\n/g, '<br>'); }
+                            let lines = val.split('\n');
+                            let htmlVal = '';
+                            let inList = false;
+                            lines.forEach(line => {
+                                if (line.trim().startsWith('- ')) {
+                                    if (!inList) { htmlVal += '<ul>'; inList = true; }
+                                    htmlVal += `<li>${line.replace(/^- /, '').trim()}</li>`;
+                                } else {
+                                    if (inList) { htmlVal += '</ul>'; inList = false; }
+                                    htmlVal += line.trim() + '<br>';
+                                }
+                            });
+                            if (inList) htmlVal += '</ul>';
+                            val = htmlVal.replace(/<br>$/, '');
+                        } else {
+                            val = val.replace(/\n/g, '<br>');
+                        }
                         html += `<tr><th>${key}</th><td>${val}</td></tr>\n`;
                     }
                     html += '</tbody>\n</table>';
-                    if (headerLine.includes('IMPP (MAKRO)')) { newImppContext.html = html; if(!newImppContext.title) newImppContext.title = profileTitle; } 
-                    else if (headerLine.includes('IMPPel (UNIT)')) { newImppelCollection.push({ title: profileTitle, html: html }); }
+
+                    if (headerLine.includes('IMPP (MAKRO)')) {
+                        newImppContext.html = html;
+                        if (!newImppContext.title) newImppContext.title = profileTitle;
+                    } else if (headerLine.includes('IMPPel (UNIT)')) {
+                        newImppelCollection.push({ title: profileTitle, html: html });
+                    }
                 }
-                savedImppContext = newImppContext; imppelCollection = newImppelCollection;
-                saveToStorage(); showModal("File berhasil dipulihkan!"); showCollection();
-            } catch (err) { showModal("Gagal membaca file."); }
+
+                savedImppContext = newImppContext;
+                imppelCollection = newImppelCollection;
+                saveToStorage();
+                showModal("File TXT versi lama berhasil diunggah dan dipulihkan!");
+                showCollection();
+            } catch (err) {
+                showModal("Gagal membaca isi file.");
+            }
         }
 
         function showModal(message) {
             const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[1000] p-4';
-            modal.innerHTML = `<div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full"><p class="mb-6">${message}</p><button onclick="this.closest('.fixed').remove()" class="w-full bg-blue-600 text-white font-bold py-2 rounded">Tutup</button></div>`;
+            modal.className = 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[10000] p-4';
+            modal.innerHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+                    <h3 class="text-lg font-bold text-gray-900 mb-2 border-b pb-2">Pemberitahuan</h3>
+                    <p class="text-gray-700 mb-6 text-sm">${message}</p>
+                    <button onclick="this.closest('.fixed').remove()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Tutup</button>
+                </div>
+            `;
             document.body.appendChild(modal);
         }
 
         function activateStep(stepId) {
             document.querySelectorAll('.step-card').forEach(card => card.classList.remove('active'));
-            document.getElementById(stepId).classList.add('active');
-            document.getElementById(stepId).classList.remove('hidden');
+            const stepElement = document.getElementById(stepId);
+            if(stepElement) {
+                stepElement.classList.add('active');
+                stepElement.classList.remove('hidden');
+            }
         }
 
         function goHome() {
@@ -470,144 +748,439 @@
         function startWorkflow(type) {
             document.getElementById('selection-screen').classList.add('hidden');
             document.getElementById('workflow-container').classList.remove('hidden');
+            
             if (type === 'impp') {
-                document.getElementById('workflow-title').innerText = 'Pembuatan IMPP (Makro)';
+                document.getElementById('workflow-title').innerText = 'Alur Pembuatan IMPP (Makro)';
                 document.getElementById('impp-workflow').classList.remove('hidden');
+                document.getElementById('imppel-workflow').classList.add('hidden');
                 activateStep('impp-step-1');
             } else {
-                document.getElementById('workflow-title').innerText = 'Pembuatan IMPPel (Unit)';
+                document.getElementById('workflow-title').innerText = 'Alur Pembuatan IMPPel (Unit)';
+                document.getElementById('impp-workflow').classList.add('hidden');
                 document.getElementById('imppel-workflow').classList.remove('hidden');
-                if(savedImppContext.title) document.getElementById('imppel-acuan-text').value = savedImppContext.title;
-                initIlpDropdowns(); activateStep('imppel-step-1');
+                
+                if(savedImppContext.title) {
+                    document.getElementById('imppel-acuan-text').value = savedImppContext.title;
+                }
+                
+                initIlpDropdowns();
+                activateStep('imppel-step-1');
             }
         }
 
         function initIlpDropdowns() {
             const klasterSel = document.getElementById('ilp-klaster');
             klasterSel.innerHTML = '<option value="">-- Pilih Klaster --</option>';
-            Object.keys(ilpDatabase).forEach(k => klasterSel.innerHTML += `<option value="${k}">${k}</option>`);
-            ['ilp-program','ilp-kegiatan','ilp-subkegiatan'].forEach(id => {
-                const sel = document.getElementById(id); sel.innerHTML = '<option value="">-- Pilih --</option>'; sel.disabled = true;
+            Object.keys(ilpDatabase).forEach(k => {
+                klasterSel.innerHTML += `<option value="${k}">${k}</option>`;
             });
+            resetSelect('ilp-program');
+            resetSelect('ilp-kegiatan');
+            resetSelect('ilp-subkegiatan');
         }
+
         function updateIlpProgram() {
-            const klaster = document.getElementById('ilp-klaster').value; const sel = document.getElementById('ilp-program');
-            sel.innerHTML = '<option value="">-- Pilih Program --</option>'; sel.disabled = !klaster;
-            if (klaster) Object.keys(ilpDatabase[klaster]).forEach(p => sel.innerHTML += `<option value="${p}">${p}</option>`);
+            const klaster = document.getElementById('ilp-klaster').value;
+            const programSel = document.getElementById('ilp-program');
+            resetSelect('ilp-program');
+            resetSelect('ilp-kegiatan');
+            resetSelect('ilp-subkegiatan');
+
+            if (klaster && ilpDatabase[klaster]) {
+                programSel.disabled = false;
+                Object.keys(ilpDatabase[klaster]).forEach(p => {
+                    programSel.innerHTML += `<option value="${p}">${p}</option>`;
+                });
+            }
         }
+
         function updateIlpKegiatan() {
-            const kls = document.getElementById('ilp-klaster').value, prg = document.getElementById('ilp-program').value;
-            const sel = document.getElementById('ilp-kegiatan'); sel.innerHTML = '<option value="">-- Pilih Kegiatan --</option>'; sel.disabled = !prg;
-            if (prg) Object.keys(ilpDatabase[kls][prg]).forEach(k => sel.innerHTML += `<option value="${k}">${k}</option>`);
+            const klaster = document.getElementById('ilp-klaster').value;
+            const program = document.getElementById('ilp-program').value;
+            const kegiatanSel = document.getElementById('ilp-kegiatan');
+            resetSelect('ilp-kegiatan');
+            resetSelect('ilp-subkegiatan');
+
+            if (program && ilpDatabase[klaster][program]) {
+                kegiatanSel.disabled = false;
+                Object.keys(ilpDatabase[klaster][program]).forEach(k => {
+                    kegiatanSel.innerHTML += `<option value="${k}">${k}</option>`;
+                });
+            }
         }
+
         function updateIlpSubKegiatan() {
-            const kls = document.getElementById('ilp-klaster').value, prg = document.getElementById('ilp-program').value, keg = document.getElementById('ilp-kegiatan').value;
-            const sel = document.getElementById('ilp-subkegiatan'); sel.innerHTML = '<option value="">-- Pilih Sub --</option>'; sel.disabled = !keg;
-            if (keg) ilpDatabase[kls][prg][keg].forEach(sk => sel.innerHTML += `<option value="${sk}">${sk}</option>`);
+            const klaster = document.getElementById('ilp-klaster').value;
+            const program = document.getElementById('ilp-program').value;
+            const kegiatan = document.getElementById('ilp-kegiatan').value;
+            const subSel = document.getElementById('ilp-subkegiatan');
+            resetSelect('ilp-subkegiatan');
+
+            if (kegiatan && ilpDatabase[klaster][program][kegiatan]) {
+                subSel.disabled = false;
+                ilpDatabase[klaster][program][kegiatan].forEach(sk => {
+                    subSel.innerHTML += `<option value="${sk}">${sk}</option>`;
+                });
+            }
+        }
+
+        function resetSelect(id) {
+            const sel = document.getElementById(id);
+            const label = id.split('-')[1];
+            const capitalized = label.charAt(0).toUpperCase() + label.slice(1);
+            sel.innerHTML = `<option value="">-- Pilih ${capitalized} --</option>`;
+            sel.disabled = true;
         }
 
         async function callGeminiAPI(prompt, isJson = true) {
-            if (!userApiKey) { showModal('API Key kosong.'); return null; }
-            let modelName = activeModel || 'gemini-1.5-flash';
-            if (modelName.includes("Menunggu")) modelName = 'gemini-1.5-flash';
-
+            if (!userApiKey) {
+                showModal('API Key belum diatur. Silakan masukkan API Key Anda di bagian atas Menu Utama sebelum melanjutkan.');
+                goHome();
+                return null;
+            }
+            
             const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
             if (isJson) payload.generationConfig = { responseMimeType: "application/json" };
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${userApiKey}`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-                });
-                if (!response.ok) {
-                    if(response.status === 429) window.parent.postMessage({ type: 'API_ERROR', code: 429 }, '*');
-                    throw new Error(`Error ${response.status}`);
+
+            const maxRetries = 3;
+            const delays = [1000, 2000, 4000];
+
+            for (let i = 0; i <= maxRetries; i++) {
+                try {
+                    let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${userApiKey}`;
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) {
+                        if (response.status === 429) throw new Error("Kuota API habis (Too Many Requests)");
+                        if (response.status === 400) throw new Error("API Key tidak valid atau Format Salah");
+                        if (response.status === 404) {
+                            await autoDetectModelFallback(); 
+                            throw new Error("Mencoba mengganti model...");
+                        }
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        return isJson ? JSON.parse(text) : text;
+                    }
+                    throw new Error("Tidak ada respon konten dari AI.");
+                } catch (error) {
+                    if (i === maxRetries) {
+                        window.parent.postMessage({ type: 'API_ERROR', code: 429 }, '*');
+                        showModal(`Gagal terhubung dengan AI. Sistem Dashboard akan memutar ke kunci cadangan.`);
+                        return null;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, delays[i]));
                 }
-                const result = await response.json();
-                const text = result.candidates[0].content.parts[0].text;
-                return isJson ? JSON.parse(text) : text;
-            } catch (e) { showModal(`Koneksi Gagal: ${e.message}`); return null; }
+            }
         }
 
-        async function getImppSuggestions(isRegen) {
-            if (!isRegen) {
-                const cat = document.querySelector('input[name="priority_category"]:checked');
+        async function getImppSuggestions(isRegeneration = false) {
+            if (!isRegeneration) {
+                const category = document.querySelector('input[name="priority_category"]:checked');
                 const desc = document.getElementById('priority-area').value;
-                if (!cat || !desc.trim()) return showModal('Lengkapi Form.');
-                imppInputState.category = cat.value; imppInputState.description = desc;
+                if (!category) { showModal('Mohon pilih Kategori Area Prioritas.'); return; }
+                if (!desc.trim()) { showModal('Mohon isi Deskripsi Masalah.'); return; }
+                
+                imppInputState.category = category.value;
+                imppInputState.description = desc;
                 activateStep('impp-step-2');
             }
-            document.getElementById('impp-suggestions-list').innerHTML = ''; document.getElementById('impp-loader').classList.remove('hidden');
-            let prompt = `Beri 5 saran judul Indikator Mutu Prioritas Puskesmas (IMPP).\nKategori: "${imppInputState.category}"\nKondisi: "${imppInputState.description}". Output Wajib JSON Array of Strings, isi judul saja.`;
+           
+            const listDiv = document.getElementById('impp-suggestions-list');
+            const loader = document.getElementById('impp-loader');
+            const customInput = document.getElementById('custom-impp-title');
+            
+            listDiv.innerHTML = '';
+            customInput.value = '';
+            loader.classList.remove('hidden');
+
+            let prompt = `Anda ahli manajemen mutu fasilitas pelayanan kesehatan. Analisis masalah berikut ini:\n- Kategori Masalah: "${imppInputState.category}"\n- Deskripsi Kondisi: "${imppInputState.description}".\n
+            Berikan 5 saran judul Indikator Mutu Prioritas Puskesmas (IMPP). Judul harus strategis, makro, dan berorientasi hasil (outcome-based). Contoh baik: "Peningkatan Keberhasilan Pengobatan TB". Jangan membuat indikator teknis/spesifik pada tindakan kecil. Output Wajib berupa JSON Array of Strings, yang berisi judul-judul saja.`;
+
             const suggestions = await callGeminiAPI(prompt, true);
-            document.getElementById('impp-loader').classList.add('hidden');
-            if (suggestions) suggestions.forEach(t => {
-                document.getElementById('impp-suggestions-list').innerHTML += `<label class="flex items-center p-3 bg-gray-50 border rounded"><input type="radio" name="impp_sugg" value="${t}" class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500" onchange="document.getElementById('custom-impp-title').value = this.value"><span class="font-medium">${t}</span></label>`;
-            });
+            loader.classList.add('hidden');
+            
+            if (suggestions && Array.isArray(suggestions)) {
+                suggestions.forEach((title, idx) => {
+                    listDiv.innerHTML += `<label class="flex items-center p-3 bg-gray-50 border rounded-md hover:bg-blue-100 cursor-pointer shadow-sm"><input type="radio" name="impp_sugg" value="${title}" class="h-4 w-4 text-blue-600 focus:ring-blue-500" onchange="document.getElementById('custom-impp-title').value = this.value"><span class="ml-3 text-gray-700 font-medium">${title}</span></label>`;
+                });
+            } else {
+                listDiv.innerHTML = '<p class="text-red-500 text-sm">Gagal memuat saran dari AI.</p>';
+            }
         }
 
-        async function getImppelSuggestions(isRegen) {
-            const kls = document.getElementById('ilp-klaster').value, prg = document.getElementById('ilp-program').value, keg = document.getElementById('ilp-kegiatan').value, sub = document.getElementById('ilp-subkegiatan').value, acn = document.getElementById('imppel-acuan-text').value;
-            if (!kls || !prg || !keg || !sub) return showModal("Lengkapi hierarki ILP.");
-            if (!isRegen) activateStep('imppel-step-3');
-            document.getElementById('imppel-suggestions-list').innerHTML = ''; document.getElementById('imppel-loader').classList.remove('hidden');
-            let prompt = `Rumuskan 5 judul IMPPel level unit.\nAcuan: "${acn}"\nUnit: ${kls}, ${prg}, ${keg}, ${sub}\nOutput Wajib JSON Array of Strings, judul saja.`;
+        async function getImppelSuggestions(isRegeneration = false) {
+            const klaster = document.getElementById('ilp-klaster').value;
+            const program = document.getElementById('ilp-program').value;
+            const kegiatan = document.getElementById('ilp-kegiatan').value;
+            const sub = document.getElementById('ilp-subkegiatan').value;
+            const acuanText = document.getElementById('imppel-acuan-text').value;
+
+            if (!klaster || !program || !kegiatan || !sub) {
+                showModal("Lengkapi semua dropdown pilihan hierarki ILP terlebih dahulu.");
+                return;
+            }
+            if (!acuanText.trim()) { showModal("Teks IMPP Acuan Makro tidak boleh kosong."); return; }
+
+            if (!isRegeneration) activateStep('imppel-step-3');
+            
+            const listDiv = document.getElementById('imppel-suggestions-list');
+            const loader = document.getElementById('imppel-loader');
+            const customInput = document.getElementById('custom-imppel-title');
+            
+            listDiv.innerHTML = ''; customInput.value = ''; loader.classList.remove('hidden');
+
+            let prompt = `Anda adalah ahli manajemen mutu pelayanan kesehatan. Rumuskan 5 judul Indikator Mutu Prioritas Pelayanan (IMPPel) untuk tingkat unit teknis.\n
+            Konteks Dasar:\n
+            1. Sasaran Utama (IMPP Makro): "${acuanText}"\n
+            2. Akan diterapkan pada Unit Layanan: Klaster: ${klaster}, Program: ${program}, Kegiatan: ${kegiatan}, Detail Rincian Teknis: ${sub}\n
+            Instruksi: Judul harus spesifik, teknis, dapat diukur, dan berorientasi pada proses/output di level Rincian Teknis ILP tersebut. Output Wajib berupa JSON Array of Strings, berisi judul-judul saja.`;
+
             const suggestions = await callGeminiAPI(prompt, true);
-            document.getElementById('imppel-loader').classList.add('hidden');
-            if (suggestions) suggestions.forEach(t => {
-                document.getElementById('imppel-suggestions-list').innerHTML += `<label class="flex items-center p-3 bg-gray-50 border rounded"><input type="radio" name="imppel_sugg" value="${t}" class="mr-3 h-4 w-4 text-emerald-600 focus:ring-emerald-500" onchange="document.getElementById('custom-imppel-title').value = this.value"><span class="font-medium">${t}</span></label>`;
-            });
+            loader.classList.add('hidden');
+            
+            if (suggestions && Array.isArray(suggestions)) {
+                suggestions.forEach((title, idx) => {
+                    listDiv.innerHTML += `<label class="flex items-center p-3 bg-gray-50 border rounded-md hover:bg-emerald-100 cursor-pointer shadow-sm"><input type="radio" name="imppel_sugg" value="${title}" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500" onchange="document.getElementById('custom-imppel-title').value = this.value"><span class="ml-3 text-gray-700 font-medium">${title}</span></label>`;
+                });
+            } else {
+                listDiv.innerHTML = '<p class="text-red-500 text-sm">Gagal memuat saran dari AI.</p>';
+            }
         }
 
         async function generateProfile(type) {
-            let finalTitle = "", contextStr = "";
+            let finalTitle = "";
+            let contextStr = "";
+
             if (type === 'impp') {
                 finalTitle = document.getElementById('custom-impp-title').value.trim();
-                contextStr = `Tingkat: IMPP. Kategori ${imppInputState.category}, Masalah: ${imppInputState.description}.`;
-                savedImppContext.title = finalTitle; savedImppContext.detail = contextStr;
-            } else {
+                if (!finalTitle) { showModal('Mohon pilih saran atau ketik judul IMPP.'); return; }
+                contextStr = `Tingkat Indikator: IMPP (Makro). Kategori ${imppInputState.category}, Deskripsi: ${imppInputState.description}.`;
+                savedImppContext.title = finalTitle;
+                savedImppContext.detail = contextStr;
+            } else if (type === 'imppel') {
                 finalTitle = document.getElementById('custom-imppel-title').value.trim();
-                contextStr = `Tingkat: IMPPel. Sub: ${document.getElementById('ilp-subkegiatan').value}, mendukung: ${document.getElementById('imppel-acuan-text').value}.`;
+                if (!finalTitle) { showModal('Mohon pilih saran atau ketik judul IMPPel.'); return; }
+                const klaster = document.getElementById('ilp-klaster').value;
+                const sub = document.getElementById('ilp-subkegiatan').value;
+                const acuanText = document.getElementById('imppel-acuan-text').value;
+                contextStr = `Tingkat Indikator: IMPPel (Mikro). Sub-Kegiatan ILP: "${sub}" pada Klaster "${klaster}", wajib mendukung IMPP Makro: "${acuanText}".`;
             }
-            activateStep('collection-step'); document.getElementById('profile-loader').classList.remove('hidden'); document.getElementById('collection-output-container').classList.add('hidden');
-            const prompt = `Buatkan kamus indikator tabel HTML murni. Judul: "${finalTitle}". Konteks: ${contextStr}. Urutan kolom: 1. Judul Indikator, 2. Dasar Pemikiran, 3. Dimensi Mutu, 4. Tujuan, 5. Definisi Operasional, 6. Jenis Indikator, 7. Satuan, 8. Numerator, 9. Denominator, 10. Target, 11. Kriteria Inklusi/Eksklusi (Gunakan <ul><li>), 12. Formula, 13. Metode, 14. Sumber Data, 15. Instrumen, 16. Sampel, 17. Cara Sampel, 18. Periode Pengumpulan, 19. Penyajian, 20. Periode Analisis, 21. Penanggung Jawab.`;
-            const html = await callGeminiAPI(prompt, false);
-            document.getElementById('profile-loader').classList.add('hidden');
-            if (html) {
-                let cleanHtml = html.replace(/^```(html)?\n|```$/gi, '').trim();
-                if (type === 'impp') savedImppContext.html = cleanHtml; else imppelCollection.push({ title: finalTitle, html: cleanHtml });
-                saveToStorage(); renderCollection();
+
+            activateStep('collection-step');
+            const profileLoader = document.getElementById('profile-loader');
+            const profileContainer = document.getElementById('collection-output-container');
+            
+            profileLoader.classList.remove('hidden'); 
+            profileContainer.classList.add('hidden');
+
+            // PERBAIKAN FATAL: Memaksa AI memberikan tag vertikal agar format tabel dan tombol tidak rusak.
+            const prompt = `Anda adalah ahli pembuat kamus indikator mutu. Buatkan profil indikator HANYA dalam bentuk KODE TABEL HTML SAJA.
+            PENTING: Jangan tulis kalimat apapun sebelum atau sesudah tabel (seperti 'Berikut adalah tabel...'). Jangan pakai markdown blockquote (seperti \`\`\`html).
+            
+            Struktur tabel WAJIB VERTIKAL (Hanya 2 Kolom):
+            - Kolom Kiri menggunakan tag <th> untuk Nama Kriteria.
+            - Kolom Kanan menggunakan tag <td> untuk Jawaban/Isi.
+            
+            FORMAT BARIS WAJIB:
+            <table>
+              <tbody>
+                <tr><th>Judul Indikator</th><td>${finalTitle}</td></tr>
+                <tr><th>Dasar Pemikiran</th><td>...</td></tr>
+                <tr><th>Dimensi Mutu</th><td>...</td></tr>
+                <tr><th>Tujuan</th><td>...</td></tr>
+                <tr><th>Definisi Operasional</th><td>...</td></tr>
+                <tr><th>Jenis Indikator</th><td>...</td></tr>
+                <tr><th>Satuan Pengukuran</th><td>...</td></tr>
+                <tr><th>Numerator (Pembilang)</th><td>...</td></tr>
+                <tr><th>Denominator (Penyebut)</th><td>...</td></tr>
+                <tr><th>Target Pencapaian</th><td>...</td></tr>
+                <tr><th>Kriteria Inklusi & Eksklusi</th><td><ul><li>...</li></ul></td></tr>
+                <tr><th>Formula Matematis</th><td>...</td></tr>
+                <tr><th>Metode Pengumpulan Data</th><td>...</td></tr>
+                <tr><th>Sumber Data</th><td>...</td></tr>
+                <tr><th>Instrumen Pengambilan Data</th><td>...</td></tr>
+                <tr><th>Besar Sampel</th><td>...</td></tr>
+                <tr><th>Cara Pengambilan Sampel</th><td>...</td></tr>
+                <tr><th>Periode Pengumpulan Data</th><td>...</td></tr>
+                <tr><th>Penyajian Data</th><td>...</td></tr>
+                <tr><th>Periode Analisis dan Pelaporan</th><td>...</td></tr>
+                <tr><th>Penanggung Jawab</th><td>...</td></tr>
+              </tbody>
+            </table>
+            
+            Konteks Analisis untuk mengisi titik-titik di atas: ${contextStr}`;
+
+            const profileHtml = await callGeminiAPI(prompt, false);
+            profileLoader.classList.add('hidden');
+            
+            if (profileHtml) {
+                // PERBAIKAN: Memotong bersih kalimat basa-basi AI secara paksa dengan Regex
+                const tableMatch = profileHtml.match(/<table[\s\S]*?<\/table>/i);
+                let cleanHtml = tableMatch ? tableMatch[0] : profileHtml.replace(/^```(html)?\n|```$/gi, '').trim();
+                
+                if (type === 'impp') { savedImppContext.html = cleanHtml; } 
+                else if (type === 'imppel') { imppelCollection.push({ title: finalTitle, html: cleanHtml }); }
+                
+                saveToStorage(); 
+                renderCollection();
+                document.getElementById('collection-step').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                showModal('Gagal menyusun profil indikator dari AI. Coba lagi.');
+                profileContainer.classList.remove('hidden');
             }
         }
 
         function renderCollection() {
-            const container = document.getElementById('collection-output'); container.innerHTML = ''; let count = 0;
-            if (savedImppContext.html) { container.innerHTML += `<div class="p-6 border border-blue-200 mb-6 bg-blue-50/50 rounded-lg shadow-sm"><div class="inline-block bg-blue-600 text-white font-bold px-3 py-1 text-xs rounded mb-4">A. IMPP (Makro)</div><br>${savedImppContext.html}</div>`; count++; }
-            imppelCollection.forEach((item, i) => { container.innerHTML += `<div class="p-6 border border-emerald-200 mt-6 bg-emerald-50/50 rounded-lg shadow-sm"><div class="flex justify-between items-center mb-4"><div class="bg-emerald-600 text-white font-bold px-3 py-1 text-xs rounded">B. IMPPel Unit #${i+1}</div><button onclick="removeImppel(${i})" class="text-red-600 bg-white border border-red-200 px-3 py-1 rounded text-xs hover:bg-red-50 font-bold">Hapus Unit</button></div>${item.html}</div>`; count++; });
-            document.getElementById('collection-count-badge').innerText = `${count} Dokumen`; document.getElementById('collection-output-container').classList.remove('hidden');
+            const container = document.getElementById('collection-output');
+            container.innerHTML = '';
+            let totalIndicators = 0;
+
+            if (savedImppContext.html) {
+                container.innerHTML += `
+                    <div class="relative bg-blue-50/50 border-2 border-blue-200 p-4 sm:p-6 rounded-lg mb-8 shadow-sm print-section">
+                        <div class="absolute -top-3 -left-3 bg-blue-600 text-white text-xs font-bold px-4 py-1.5 rounded shadow hide-on-print">A. IMPP (Makro)</div>
+                        ${savedImppContext.html}
+                    </div>
+                `;
+                totalIndicators++;
+            }
+
+            imppelCollection.forEach((item, index) => {
+                container.innerHTML += `
+                    <div class="relative bg-emerald-50/50 border-2 border-emerald-200 p-4 sm:p-6 rounded-lg mt-10 shadow-sm print-section">
+                        <div class="absolute -top-3 -left-3 bg-emerald-600 text-white text-xs font-bold px-4 py-1.5 rounded shadow hide-on-print">B. IMPPel (Unit) #${index + 1}</div>
+                        <button onclick="removeImppel(${index})" class="absolute top-2 right-2 text-red-600 hover:bg-red-100 hover:text-red-800 text-xs font-bold px-3 py-1 bg-white border border-red-200 rounded shadow-sm transition hide-on-print">Hapus Unit Ini</button>
+                        ${item.html}
+                    </div>
+                `;
+                totalIndicators++;
+            });
+
+            document.getElementById('collection-count-badge').innerText = `${totalIndicators} Dokumen Siap`;
+            document.getElementById('collection-output-container').classList.remove('hidden');
         }
 
-        function removeImppel(i) { if(confirm("Hapus?")) { imppelCollection.splice(i, 1); saveToStorage(); renderCollection(); } }
-        function showCollection() { activateStep('collection-step'); renderCollection(); }
-        function continueToImppel() { activateStep('imppel-step-2'); }
+        function removeImppel(index) {
+            if(confirm("Apakah Anda yakin ingin menghapus indikator unit ini?")) {
+                imppelCollection.splice(index, 1);
+                saveToStorage(); renderCollection();
+                if (!savedImppContext.html && imppelCollection.length === 0) goHome(); 
+            }
+        }
+
+        function showCollection() {
+            if (!savedImppContext.html && imppelCollection.length === 0) {
+                showModal("Koleksi Anda masih kosong."); return;
+            }
+            document.getElementById('selection-screen').classList.add('hidden');
+            document.getElementById('workflow-container').classList.remove('hidden');
+            document.getElementById('impp-workflow').classList.add('hidden');
+            document.getElementById('imppel-workflow').classList.add('hidden');
+            activateStep('collection-step');
+            renderCollection();
+        }
+
+        function continueToImppel() {
+            document.getElementById('workflow-title').innerText = 'Alur Pembuatan IMPPel (Unit)';
+            document.getElementById('collection-step').classList.add('hidden');
+            document.getElementById('impp-workflow').classList.add('hidden');
+            document.getElementById('imppel-workflow').classList.remove('hidden');
+            if(savedImppContext.title) { document.getElementById('imppel-acuan-text').value = savedImppContext.title; }
+            initIlpDropdowns();
+            activateStep('imppel-step-2');
+            document.getElementById('workflow-title').scrollIntoView({ behavior: 'smooth' });
+        }
 
         function downloadPDF() {
-            const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'pt', 'a4'); doc.text("KOLEKSI DOKUMEN IMP & IMPPel", 40, 40);
-            let y = 70; 
-            const tables = document.querySelectorAll('#collection-output table');
-            if(tables.length === 0) return showModal("Koleksi kosong!");
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            doc.setFontSize(14); doc.setFont("helvetica", "bold");
+            doc.text("KOLEKSI DOKUMEN INDIKATOR MUTU PUSKESMAS", 40, 40);
             
-            tables.forEach((table) => {
-                doc.autoTable({ html: table, startY: y, styles: { fontSize: 8 } }); y = doc.lastAutoTable.finalY + 30;
+            let currentY = 70;
+            const tables = document.querySelectorAll('#collection-output table');
+            if (tables.length === 0) { showModal("Tidak ada data untuk diunduh."); return; }
+
+            tables.forEach((table, index) => {
+                const isImpp = index === 0 && savedImppContext.html !== "";
+                const headerText = isImpp ? "PROFIL A: IMPP (MAKRO)" : `PROFIL B: IMPPel (UNIT) #${isImpp ? index : index + 1}`;
+                doc.setFontSize(12); doc.setFont("helvetica", "bold");
+                doc.text(headerText, 40, currentY);
+                
+                doc.autoTable({
+                    html: table, startY: currentY + 15, theme: 'grid',
+                    styles: { fontSize: 10, font: 'helvetica', cellPadding: 6, lineColor: [200, 200, 200] },
+                    headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
+                    columnStyles: { 0: { cellWidth: 120, fontStyle: 'bold' } },
+                    margin: { left: 40, right: 40 }
+                });
+                
+                currentY = doc.lastAutoTable.finalY + 30;
+                if (currentY > 750 && index < tables.length - 1) { doc.addPage(); currentY = 40; }
             });
-            const blob = new Blob([doc.output('blob'), new Blob(["\n###ILP_SAVE_DATA_START###\n" + JSON.stringify({impp:savedImppContext, imppel:imppelCollection}) + "\n###ILP_SAVE_DATA_END###\n"])], {type: 'application/pdf'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Koleksi_Mutu.pdf`; a.click();
+
+            const pdfBlob = doc.output('blob');
+            const appState = { impp: savedImppContext, imppel: imppelCollection };
+            const hiddenDataStr = "\n###ILP_SAVE_DATA_START###\n" + JSON.stringify(appState) + "\n###ILP_SAVE_DATA_END###\n";
+            const hiddenDataBlob = new Blob([hiddenDataStr], { type: 'text/plain' });
+            const finalBlob = new Blob([pdfBlob, hiddenDataBlob], { type: 'application/pdf' });
+            
+            const url = URL.createObjectURL(finalBlob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `PROFIL INDIKATOR MUTU PRIORITAS.pdf`;
+            document.body.appendChild(a); a.click();
+            setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
         }
+        
         function downloadTXT() {
-            let txt = "KOLEKSI INDIKATOR MUTU\n\n"; 
-            document.querySelectorAll('#collection-output table').forEach((table) => {
-                table.querySelectorAll('tr').forEach(r => { const c = r.querySelectorAll('th,td'); if(c.length===2) txt += `${c[0].innerText}: ${c[1].innerText.replace(/\\n/g, ' ')}\n`; }); txt += "\n---\n";
+            const tables = document.querySelectorAll('#collection-output table');
+            if (tables.length === 0) { showModal('Tidak ada data profil.'); return; }
+
+            function nodeToText(node) {
+                let text = '';
+                if (node.nodeType === Node.TEXT_NODE) return node.textContent;
+                if (node.nodeType !== Node.ELEMENT_NODE) return '';
+                const tag = node.tagName.toLowerCase();
+                if (tag === 'br') text += '\n'; else if (tag === 'li') text += '\n- ';
+                for (const child of node.childNodes) text += nodeToText(child);
+                if (tag === 'p' || tag === 'div' || tag === 'ul') if (!text.endsWith('\n')) text += '\n';
+                return text;
+            }
+
+            let textContent = `==================================================\n     KOLEKSI DOKUMEN INDIKATOR MUTU PUSKESMAS     \n==================================================\n\n`;
+            if (savedImppContext.title) { textContent += `[ACUAN UTAMA]\nIMPP STRATEGIS: ${savedImppContext.title}\n--------------------------------------------------\n\n`; }
+
+            tables.forEach((table, index) => {
+                const isImpp = index === 0 && savedImppContext.html !== "";
+                const headerText = isImpp ? "PROFIL A: IMPP (MAKRO)" : `PROFIL B: IMPPel (UNIT) #${isImpp ? index : index + 1}`;
+                textContent += `\n>>> ${headerText} <<<\n\n`;
+                table.querySelectorAll('tr').forEach(row => {
+                    const cells = row.querySelectorAll('th, td');
+                    if (cells.length === 2) {
+                        const header = cells[0].innerText.trim();
+                        const content = nodeToText(cells[1]).trim().replace(/\n\s*\n/g, '\n');
+                        textContent += `${header}:\n${content}\n\n`;
+                    }
+                });
+                textContent += `--------------------------------------------------\n`;
             });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt])); a.download = `Koleksi_Mutu.txt`; a.click();
+
+            const blob = new Blob([textContent.trim()], { type: 'text/plain;charset=utf-8' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `PROFIL INDIKATOR MUTU PRIORITAS.txt`;
+            document.body.appendChild(a); a.click();
+            setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(a.href); }, 0);
         }
+        
+        document.addEventListener('contextmenu', event => { if (event.target.closest('.no-select')) { event.preventDefault(); } });
     </script>
 </body>
 </html>
