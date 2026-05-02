@@ -29,77 +29,19 @@
         #collection-output td { color: #374151; }
         #collection-output h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #1e3a8a; text-align: center; text-transform: uppercase;}
         #collection-output ul { list-style-type: disc; padding-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
-        /* Print specific adjustments */
         .pdf-print-mode { width: 900px !important; max-width: none !important; padding: 40px !important; background: white !important; }
         .pdf-print-mode button { display: none !important; }
-        /* CSS Anti Copy-Paste Sederhana untuk User Biasa */
-        .no-select {
-            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-        }
+        .no-select { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
 
-    <div id="loginOverlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900 transition-opacity duration-500 overflow-y-auto py-10">
-        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md text-center mx-4 relative overflow-hidden min-h-[480px]">
-            
-            <div id="loginFormView" class="absolute inset-0 p-8 transition-transform duration-500 transform translate-x-0 bg-white flex flex-col justify-center">
-                <i class="fas fa-shield-alt text-5xl text-blue-600 mb-4"></i>
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">Akses Terbatas</h2>
-                <p class="text-sm text-gray-500 mb-6">Silakan masuk menggunakan akun yang telah di-ACC oleh Admin Dinas Kesehatan.</p>
-
-                <input type="email" id="loginEmail" placeholder="Email Anda" class="w-full border-gray-300 rounded-lg p-3 mb-4 focus:ring-blue-500 bg-gray-50 border text-center font-medium">
-                <input type="password" id="loginPassword" placeholder="Password" class="w-full border-gray-300 rounded-lg p-3 mb-4 focus:ring-blue-500 bg-gray-50 border text-center font-medium">
-
-                <button id="btnLogin" onclick="verifyLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-md">
-                    <i class="fas fa-sign-in-alt"></i> Masuk Aplikasi
-                </button>
-
-                <p id="loginError" class="text-red-600 text-sm mt-4 hidden bg-red-50 border border-red-100 py-2 px-3 rounded font-medium"></p>
-                <div class="mt-6 border-t pt-4">
-                    <p class="text-sm text-gray-600">Belum memiliki akun? <button onclick="toggleAuthView('register')" class="text-blue-600 font-bold hover:underline focus:outline-none">Daftar di sini</button></p>
-                </div>
-            </div>
-
-            <div id="registerFormView" class="absolute inset-0 p-8 transition-transform duration-500 transform translate-x-full bg-white flex flex-col justify-center">
-                <i class="fas fa-user-plus text-4xl text-blue-600 mb-3"></i>
-                <h2 class="text-xl font-bold text-gray-800 mb-1">Daftar Akun Baru</h2>
-                <p class="text-[11px] text-gray-500 mb-5 leading-tight">Akun baru wajib menunggu persetujuan Admin (ACC) sebelum bisa login.</p>
-
-                <div class="space-y-3 text-left">
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-600 mb-1">NAMA INSTANSI / PUSKESMAS</label>
-                        <input type="text" id="regName" placeholder="Cth: Puskesmas..." class="w-full border-gray-300 rounded p-2 text-sm border">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-600 mb-1">EMAIL</label>
-                        <input type="email" id="regEmail" placeholder="Cth: puskesmas@gmail.com" class="w-full border-gray-300 rounded p-2 text-sm border">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-600 mb-1">PASSWORD (Min 6 Karakter)</label>
-                        <input type="password" id="regPassword" placeholder="Buat password baru" class="w-full border-gray-300 rounded p-2 text-sm border">
-                    </div>
-                </div>
-
-                <button id="btnRegister" onclick="registerAccount()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition duration-200 mt-5 shadow-md text-sm">
-                    <i class="fas fa-paper-plane"></i> Kirim Pengajuan
-                </button>
-
-                <p id="regMessage" class="text-sm mt-3 hidden py-2 px-3 rounded font-medium"></p>
-                <div class="mt-4 border-t pt-3">
-                    <p class="text-sm text-gray-600">Sudah punya akun? <button onclick="toggleAuthView('login')" class="text-blue-600 font-bold hover:underline focus:outline-none">Ke Login</button></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="mainAppWrapper" class="hidden opacity-0 transition-opacity duration-700 w-full no-select">
+    <div id="mainAppWrapper" class="w-full no-select transition-opacity duration-700">
         
         <div class="container mx-auto p-4 md:p-8 max-w-5xl">
             <div class="flex justify-end mb-4">
                 <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-bold shadow-sm border border-blue-200 flex items-center gap-2">
-                    <i class="fas fa-user-check"></i> <span id="displayUserName">Guest</span>
-                    <span id="displaySisaHari" class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full ml-1"></span>
+                    <i class="fas fa-shield-alt"></i> <span id="displayUserName">Akses Portal Terenkripsi</span>
                 </div>
             </div>
 
@@ -124,17 +66,15 @@
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-blue-200 mb-8 flex flex-col md:flex-row justify-between gap-4 items-center">
                     <div class="w-full md:w-1/2">
                         <h2 class="text-lg font-bold text-blue-800 mb-1 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
-                            Akses AI (Google API Key)
+                            <i class="fas fa-key mr-2"></i> Sinkronisasi API Key
                         </h2>
-                        <p class="text-xs text-gray-600 mb-1">Dibutuhkan untuk menghasilkan indikator. Jika error/kuota habis, ganti key di sini.</p>
-                        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 underline font-medium">Buka Google AI Studio untuk ambil Key gratis &rarr;</a>
+                        <p class="text-xs text-gray-600 mb-1">Dikelola secara otomatis oleh sistem Portal SEHATI - AI.</p>
                     </div>
                     <div class="w-full md:w-1/2 flex flex-col">
                         <div class="flex gap-2">
-                            <input type="password" id="api-key-input" style="-webkit-user-select: text; user-select: text;" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" placeholder="Masukkan API Key Anda...">
+                            <input type="password" id="api-key-input" style="-webkit-user-select: text; user-select: text;" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" placeholder="Sinkronisasi token..." readonly>
                             <button onclick="saveApiKey()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition-colors text-sm whitespace-nowrap shadow">
-                                Simpan & Cek
+                                Cek Status
                             </button>
                         </div>
                         <div class="flex justify-between items-center mt-2">
@@ -314,116 +254,6 @@
     </div>
 
     <script>
-        // -------------------------------------------------------------------------
-        // SCRIPT GATEKEEPER (LOGIN) - URL BAPAK SUDAH DIMASUKKAN DI SINI!
-        // -------------------------------------------------------------------------
-        
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwbQWMSY9Opmkg4I29J6u-aSRXLLz5lpxRKxKOpx-oDPCLEgR1borgN8e8hAYa4aHHf/exec"; 
-
-        function toggleAuthView(view) {
-            const loginView = document.getElementById('loginFormView');
-            const regView = document.getElementById('registerFormView');
-            document.getElementById('loginError').classList.add('hidden');
-            document.getElementById('regMessage').classList.add('hidden');
-
-            if(view === 'register') {
-                loginView.classList.replace('translate-x-0', '-translate-x-full');
-                regView.classList.replace('translate-x-full', 'translate-x-0');
-            } else {
-                regView.classList.replace('translate-x-0', 'translate-x-full');
-                loginView.classList.replace('-translate-x-full', 'translate-x-0');
-            }
-        }
-
-        async function verifyLogin() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-            const btn = document.getElementById('btnLogin');
-            const err = document.getElementById('loginError');
-
-            if(!email || !password) {
-                err.innerText = "Email dan Password wajib diisi!"; err.classList.remove('hidden'); return;
-            }
-
-            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Memeriksa...`;
-            btn.disabled = true; err.classList.add('hidden');
-
-            try {
-                // Tembak API ke Google Script
-                const response = await fetch(`${GAS_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`);
-                const result = await response.json();
-
-                if(result.status === 'success') {
-                    // Buka Tirai
-                    document.getElementById('loginOverlay').style.opacity = '0';
-                    setTimeout(() => {
-                        document.getElementById('loginOverlay').classList.add('hidden');
-                        const app = document.getElementById('mainAppWrapper');
-                        app.classList.remove('hidden');
-                        void app.offsetWidth;
-                        app.classList.remove('opacity-0');
-                        
-                        document.getElementById('displayUserName').innerText = result.name;
-                        if(result.sisaHari) document.getElementById('displaySisaHari').innerText = `${result.sisaHari} Hari`;
-                    }, 500);
-                } else {
-                    err.innerText = result.message || "Akses Ditolak"; err.classList.remove('hidden');
-                }
-            } catch (error) {
-                err.innerText = "Koneksi gagal. Pastikan URL GAS sudah benar dan internet stabil."; err.classList.remove('hidden');
-            } finally {
-                btn.innerHTML = `<i class="fas fa-sign-in-alt"></i> Masuk Aplikasi`; btn.disabled = false;
-            }
-        }
-
-        async function registerAccount() {
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value.trim();
-            const btn = document.getElementById('btnRegister');
-            const msg = document.getElementById('regMessage');
-
-            msg.className = "text-[11px] mt-3 py-2 px-2 rounded font-medium block"; // reset class
-
-            if(!name || !email || !password || password.length < 6) {
-                msg.innerText = "Lengkapi data. Password min 6 karakter.";
-                msg.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-100'); return;
-            }
-
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Memproses...`;
-            btn.disabled = true; msg.classList.add('hidden');
-
-            try {
-                const response = await fetch(`${GAS_URL}?action=register&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&password=${encodeURIComponent(password)}`);
-                const result = await response.json();
-
-                if(result.status === 'success') {
-                    msg.innerText = result.message;
-                    msg.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200', 'font-bold');
-                    document.getElementById('regName').value = ''; document.getElementById('regEmail').value = ''; document.getElementById('regPassword').value = '';
-                } else {
-                    msg.innerText = result.message;
-                    msg.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-100');
-                }
-            } catch (error) {
-                msg.innerText = "Gagal terhubung.";
-                msg.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-100');
-            } finally {
-                btn.innerHTML = `<i class="fas fa-paper-plane"></i> Kirim Pengajuan`; btn.disabled = false;
-            }
-        }
-        
-        // Anti klik kanan untuk proteksi dasar
-        document.addEventListener('contextmenu', event => {
-            if (event.target.closest('.no-select')) {
-                event.preventDefault();
-            }
-        });
-
-        // -------------------------------------------------------------------------
-        // SCRIPT APLIKASI UTAMA (GENERATOR IMPP)
-        // -------------------------------------------------------------------------
-
         // Database Hierarki ILP Berdasarkan File PDF
         const ilpDatabase = {
             "KLASTER 1: MANAJEMEN": {
@@ -648,11 +478,26 @@
         let imppInputState = { category: "", description: "" };
 
         window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const keyFromUrl = urlParams.get('key');
+
+            if (keyFromUrl) {
+                sessionStorage.setItem('sehati_api_key', keyFromUrl);
+                const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+            }
+
+            const sessionKey = sessionStorage.getItem('sehati_api_key');
+            if (sessionKey) userApiKey = sessionKey;
+            
             loadFromStorage();
+            
             if (userApiKey) {
                 document.getElementById('api-key-input').value = userApiKey;
                 document.getElementById('active-model-display').innerText = activeModel;
+                saveApiKey(); // Otomatis verifikasi dan cari model saat dimuat
             }
+
             document.getElementById('selection-screen').classList.remove('hidden');
             document.getElementById('workflow-container').classList.add('hidden');
             updateCounters();
@@ -660,7 +505,7 @@
 
         function loadFromStorage() {
             const storedKey = localStorage.getItem('ilp_api_key');
-            if (storedKey) userApiKey = storedKey;
+            if (storedKey && !userApiKey) userApiKey = storedKey;
             
             const storedModel = localStorage.getItem('ilp_active_model');
             if (storedModel) activeModel = storedModel;
@@ -681,7 +526,7 @@
         async function saveApiKey() {
             const key = document.getElementById('api-key-input').value;
             if (!key.trim()) {
-                showModal('Mohon masukkan API Key Anda terlebih dahulu.');
+                showModal('Mohon pastikan API Key sudah terisi.');
                 return;
             }
             
@@ -723,7 +568,7 @@
                 statusEl.textContent = `Error: ${err.message}`;
                 statusEl.className = 'text-xs mt-2 text-red-600 font-bold text-right block';
                 document.getElementById('active-model-display').innerText = 'Gagal verifikasi';
-                showModal(`Gagal memverifikasi API Key.<br><br><b>Pesan:</b> ${err.message}<br>Pastikan key benar dan perangkat terhubung ke internet.`);
+                showModal(`Gagal memverifikasi API Key.<br><br><b>Pesan:</b> ${err.message}<br>Pastikan perangkat terhubung ke internet.`);
             }
         }
 
@@ -793,7 +638,7 @@
                     parseLegacyTxt(content.replace(/\r\n/g, '\n'));
                 } 
                 else {
-                    showModal("File PDF ini adalah versi lama (atau tidak mengandung data pintar). Silakan unggah file '.txt' riwayat Anda atau buat profil baru untuk mendapatkan fitur pemulihan PDF pintar.");
+                    showModal("File PDF ini adalah versi lama. Silakan unggah file '.txt' riwayat Anda.");
                 }
                 event.target.value = ''; 
             };
@@ -846,7 +691,6 @@
                         } else {
                             val = val.replace(/\n/g, '<br>');
                         }
-                        
                         html += `<tr><th>${key}</th><td>${val}</td></tr>\n`;
                     }
                     html += '</tbody>\n</table>';
@@ -865,7 +709,7 @@
                 showModal("File TXT versi lama berhasil diunggah dan dipulihkan!");
                 showCollection();
             } catch (err) {
-                showModal("Gagal membaca isi file. Pastikan Anda mengunggah file yang tepat.");
+                showModal("Gagal membaca isi file.");
             }
         }
 
@@ -1014,7 +858,7 @@
                         if (response.status === 400) throw new Error("API Key tidak valid atau Format Salah");
                         if (response.status === 404) {
                             await autoDetectModelFallback(); 
-                            throw new Error("Sistem mengganti model karena versi lama tidak ditemukan, mencoba lagi...");
+                            throw new Error("Mencoba mengganti model...");
                         }
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
@@ -1027,7 +871,8 @@
                     throw new Error("Tidak ada respon konten dari AI.");
                 } catch (error) {
                     if (i === maxRetries) {
-                        showModal(`Gagal terhubung dengan AI (${error.message}). <br><br><b>Saran:</b> Pastikan koneksi internet stabil. Jika kuota API habis, silakan ganti API Key Anda.`);
+                        window.parent.postMessage({ type: 'API_ERROR', code: 429 }, '*');
+                        showModal(`Gagal terhubung dengan AI. Sistem Dashboard akan memutar ke kunci cadangan.`);
                         return null;
                     }
                     await new Promise(resolve => setTimeout(resolve, delays[i]));
@@ -1056,10 +901,7 @@
             loader.classList.remove('hidden');
 
             let prompt = `Anda ahli manajemen mutu fasilitas pelayanan kesehatan. Analisis masalah berikut ini:\n- Kategori Masalah: "${imppInputState.category}"\n- Deskripsi Kondisi: "${imppInputState.description}".\n
-            Berikan 5 saran judul Indikator Mutu Prioritas Puskesmas (IMPP). Judul harus strategis, makro, dan berorientasi hasil (outcome-based). Contoh baik: "Peningkatan Keberhasilan Pengobatan TB". Jangan membuat indikator teknis/spesifik pada tindakan kecil.`;
-            
-            if (isRegeneration) prompt += ` Berikan 5 saran judul BARU yang berbeda dari sebelumnya.`;
-            prompt += ` Output Wajib berupa JSON Array of Strings, yang berisi judul-judul saja.`;
+            Berikan 5 saran judul Indikator Mutu Prioritas Puskesmas (IMPP). Judul harus strategis, makro, dan berorientasi hasil (outcome-based). Contoh baik: "Peningkatan Keberhasilan Pengobatan TB". Jangan membuat indikator teknis/spesifik pada tindakan kecil. Output Wajib berupa JSON Array of Strings, yang berisi judul-judul saja.`;
 
             const suggestions = await callGeminiAPI(prompt, true);
             loader.classList.add('hidden');
@@ -1069,7 +911,7 @@
                     listDiv.innerHTML += `<label class="flex items-center p-3 bg-gray-50 border rounded-md hover:bg-blue-100 cursor-pointer shadow-sm"><input type="radio" name="impp_sugg" value="${title}" class="h-4 w-4 text-blue-600 focus:ring-blue-500" onchange="document.getElementById('custom-impp-title').value = this.value"><span class="ml-3 text-gray-700 font-medium">${title}</span></label>`;
                 });
             } else {
-                listDiv.innerHTML = '<p class="text-red-500 text-sm">Gagal memuat saran dari AI. Silakan coba klik tombol Saran Lain.</p>';
+                listDiv.innerHTML = '<p class="text-red-500 text-sm">Gagal memuat saran dari AI.</p>';
             }
         }
 
@@ -1081,13 +923,10 @@
             const acuanText = document.getElementById('imppel-acuan-text').value;
 
             if (!klaster || !program || !kegiatan || !sub) {
-                showModal("Lengkapi semua dropdown pilihan hierarki ILP (Klaster hingga Sub-Kegiatan) terlebih dahulu.");
+                showModal("Lengkapi semua dropdown pilihan hierarki ILP terlebih dahulu.");
                 return;
             }
-            if (!acuanText.trim()) {
-                showModal("Teks IMPP Acuan Makro tidak boleh kosong.");
-                return;
-            }
+            if (!acuanText.trim()) { showModal("Teks IMPP Acuan Makro tidak boleh kosong."); return; }
 
             if (!isRegeneration) activateStep('imppel-step-3');
             
@@ -1095,18 +934,13 @@
             const loader = document.getElementById('imppel-loader');
             const customInput = document.getElementById('custom-imppel-title');
             
-            listDiv.innerHTML = '';
-            customInput.value = '';
-            loader.classList.remove('hidden');
+            listDiv.innerHTML = ''; customInput.value = ''; loader.classList.remove('hidden');
 
             let prompt = `Anda adalah ahli manajemen mutu pelayanan kesehatan. Rumuskan 5 judul Indikator Mutu Prioritas Pelayanan (IMPPel) untuk tingkat unit teknis.\n
             Konteks Dasar:\n
             1. Sasaran Utama (IMPP Makro): "${acuanText}"\n
             2. Akan diterapkan pada Unit Layanan: Klaster: ${klaster}, Program: ${program}, Kegiatan: ${kegiatan}, Detail Rincian Teknis: ${sub}\n
-            Instruksi: Judul harus spesifik, teknis, dapat diukur, dan berorientasi pada proses/output di level Rincian Teknis ILP tersebut. Tujuannya adalah untuk mendukung tercapainya Sasaran Utama secara langsung.`;
-            
-            if (isRegeneration) prompt += ` Berikan 5 saran judul BARU yang berbeda.`;
-            prompt += ` Output Wajib berupa JSON Array of Strings, berisi judul-judul saja.`;
+            Instruksi: Judul harus spesifik, teknis, dapat diukur, dan berorientasi pada proses/output di level Rincian Teknis ILP tersebut. Output Wajib berupa JSON Array of Strings, berisi judul-judul saja.`;
 
             const suggestions = await callGeminiAPI(prompt, true);
             loader.classList.add('hidden');
@@ -1116,7 +950,7 @@
                     listDiv.innerHTML += `<label class="flex items-center p-3 bg-gray-50 border rounded-md hover:bg-emerald-100 cursor-pointer shadow-sm"><input type="radio" name="imppel_sugg" value="${title}" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500" onchange="document.getElementById('custom-imppel-title').value = this.value"><span class="ml-3 text-gray-700 font-medium">${title}</span></label>`;
                 });
             } else {
-                listDiv.innerHTML = '<p class="text-red-500 text-sm">Gagal memuat saran dari AI. Silakan coba klik tombol Saran Lain.</p>';
+                listDiv.innerHTML = '<p class="text-red-500 text-sm">Gagal memuat saran dari AI.</p>';
             }
         }
 
@@ -1126,76 +960,42 @@
 
             if (type === 'impp') {
                 finalTitle = document.getElementById('custom-impp-title').value.trim();
-                if (!finalTitle) { showModal('Mohon pilih salah satu saran atau ketik manual judul IMPP terlebih dahulu.'); return; }
-                contextStr = `Tingkat Indikator: IMPP (Makro/Strategis). Konteks masalah asli: Kategori ${imppInputState.category}, Deskripsi riil: ${imppInputState.description}.`;
-                
+                if (!finalTitle) { showModal('Mohon pilih saran atau ketik judul IMPP.'); return; }
+                contextStr = `Tingkat Indikator: IMPP (Makro). Kategori ${imppInputState.category}, Deskripsi: ${imppInputState.description}.`;
                 savedImppContext.title = finalTitle;
                 savedImppContext.detail = contextStr;
-
             } else if (type === 'imppel') {
                 finalTitle = document.getElementById('custom-imppel-title').value.trim();
-                if (!finalTitle) { showModal('Mohon pilih salah satu saran atau ketik manual judul IMPPel terlebih dahulu.'); return; }
+                if (!finalTitle) { showModal('Mohon pilih saran atau ketik judul IMPPel.'); return; }
                 const klaster = document.getElementById('ilp-klaster').value;
                 const sub = document.getElementById('ilp-subkegiatan').value;
                 const acuanText = document.getElementById('imppel-acuan-text').value;
-                contextStr = `Tingkat Indikator: IMPPel (Mikro/Teknis Unit). Dirancang khusus untuk Sub-Kegiatan ILP: "${sub}" pada Klaster "${klaster}", dengan tujuan akhir wajib mendukung pencapaian IMPP Makro yaitu: "${acuanText}".`;
+                contextStr = `Tingkat Indikator: IMPPel (Mikro). Sub-Kegiatan ILP: "${sub}" pada Klaster "${klaster}", wajib mendukung IMPP Makro: "${acuanText}".`;
             }
 
             activateStep('collection-step');
-            
             const profileLoader = document.getElementById('profile-loader');
             const profileContainer = document.getElementById('collection-output-container');
             
-            profileLoader.classList.remove('hidden');
-            profileContainer.classList.add('hidden');
+            profileLoader.classList.remove('hidden'); profileContainer.classList.add('hidden');
 
-            const prompt = `Anda adalah ahli pembuat kamus indikator mutu. Buatkan profil/kamus indikator dalam format tabel HTML yang rapi dan profesional.
-            Tag utama: awali dengan <h3>PROFIL INDIKATOR MUTU</h3> lalu diikuti tabel <table>.
-            Judul Indikator Wajib: "${finalTitle}".
-            Konteks Analisis Anda: ${contextStr}.
-            
-            Isi baris <tr> (Kolom Kiri <th> dan Kolom Kanan <td>) dengan urutan pasti berikut:
-            1. Judul Indikator
-            2. Dasar Pemikiran (Rasionalisasi logis berdasarkan konteks yang diberikan)
-            3. Dimensi Mutu (Pilih 1-3 yang paling tepat, misal: Efektivitas, Keselamatan)
-            4. Tujuan (Spesifik)
-            5. Definisi Operasional (Kriteria jelas, pengertian utuh, tidak multi-tafsir)
-            6. Jenis Indikator (Tentukan: Input / Proses / Output / Outcome)
-            7. Satuan Pengukuran
-            8. Numerator (Pembilang)
-            9. Denominator (Penyebut)
-            10. Target Pencapaian (Gunakan persentase atau angka pasti)
-            11. Kriteria Inklusi & Eksklusi (Wajib gunakan format list HTML <ul><li> agar rapi)
-            12. Formula Matematis (Misal: (Numerator / Denominator) x 100%)
-            13. Metode Pengumpulan Data
-            14. Sumber Data
-            15. Instrumen Pengambilan Data
-            16. Besar Sampel
-            17. Cara Pengambilan Sampel
-            18. Periode Pengumpulan Data
-            19. Penyajian Data
-            20. Periode Analisis dan Pelaporan
-            21. Penanggung Jawab
-            
-            PENTING: Output HANYA KODE HTML murni. Jangan tambahkan penjelasan pembuka/penutup. Jangan gunakan blockquote markdown (seperti \`\`\`html). Cukup HTML mentah.`;
+            const prompt = `Anda adalah ahli pembuat kamus indikator mutu. Buatkan profil/kamus indikator dalam format tabel HTML murni.
+            Tag utama: awali dengan <h3>PROFIL INDIKATOR MUTU</h3> lalu <table>.
+            Judul: "${finalTitle}". Konteks: ${contextStr}.
+            Isi baris <tr> (<th> dan <td>) urutan: 1. Judul Indikator, 2. Dasar Pemikiran, 3. Dimensi Mutu, 4. Tujuan, 5. Definisi Operasional, 6. Jenis Indikator, 7. Satuan Pengukuran, 8. Numerator, 9. Denominator, 10. Target Pencapaian, 11. Kriteria Inklusi & Eksklusi (Gunakan <ul><li>), 12. Formula, 13. Metode Pengumpulan Data, 14. Sumber Data, 15. Instrumen, 16. Besar Sampel, 17. Cara Pengambilan Sampel, 18. Periode Pengumpulan, 19. Penyajian Data, 20. Periode Analisis, 21. Penanggung Jawab. Jangan gunakan markdown blockquote.`;
 
             const profileHtml = await callGeminiAPI(prompt, false);
             profileLoader.classList.add('hidden');
             
             if (profileHtml) {
                 const cleanHtml = profileHtml.replace(/^```(html)?\n|```$/gi, '').trim();
-                
-                if (type === 'impp') {
-                    savedImppContext.html = cleanHtml;
-                } else if (type === 'imppel') {
-                    imppelCollection.push({ title: finalTitle, html: cleanHtml });
-                }
-
+                if (type === 'impp') { savedImppContext.html = cleanHtml; } 
+                else if (type === 'imppel') { imppelCollection.push({ title: finalTitle, html: cleanHtml }); }
                 saveToStorage(); 
                 renderCollection();
                 document.getElementById('collection-step').scrollIntoView({ behavior: 'smooth' });
             } else {
-                showModal('Gagal menyusun profil indikator dari AI. Silakan coba klik tombol Buat Profil kembali.');
+                showModal('Gagal menyusun profil indikator dari AI. Coba lagi.');
                 profileContainer.classList.remove('hidden');
             }
         }
@@ -1231,44 +1031,31 @@
         }
 
         function removeImppel(index) {
-            if(confirm("Apakah Anda yakin ingin menghapus indikator unit ini dari koleksi?")) {
+            if(confirm("Apakah Anda yakin ingin menghapus indikator unit ini?")) {
                 imppelCollection.splice(index, 1);
-                saveToStorage();
-                renderCollection();
-                if (!savedImppContext.html && imppelCollection.length === 0) {
-                    goHome(); 
-                }
+                saveToStorage(); renderCollection();
+                if (!savedImppContext.html && imppelCollection.length === 0) goHome(); 
             }
         }
 
         function showCollection() {
             if (!savedImppContext.html && imppelCollection.length === 0) {
-                showModal("Koleksi Anda masih kosong. Silakan buat atau unggah file profil indikator terlebih dahulu.");
-                return;
+                showModal("Koleksi Anda masih kosong."); return;
             }
             document.getElementById('selection-screen').classList.add('hidden');
             document.getElementById('workflow-container').classList.remove('hidden');
             document.getElementById('impp-workflow').classList.add('hidden');
             document.getElementById('imppel-workflow').classList.add('hidden');
-            
             activateStep('collection-step');
             renderCollection();
         }
 
         function continueToImppel() {
-            if (!savedImppContext.title) {
-                showModal("Sebaiknya Anda membuat IMPP (Makro) terlebih dahulu sebagai Acuan Utama. Namun, Anda tetap bisa melanjutkan dengan mengetik acuan secara manual di layar berikutnya.");
-            }
-            
             document.getElementById('workflow-title').innerText = 'Alur Pembuatan IMPPel (Unit)';
             document.getElementById('collection-step').classList.add('hidden');
             document.getElementById('impp-workflow').classList.add('hidden');
             document.getElementById('imppel-workflow').classList.remove('hidden');
-            
-            if(savedImppContext.title) {
-                document.getElementById('imppel-acuan-text').value = savedImppContext.title;
-            }
-            
+            if(savedImppContext.title) { document.getElementById('imppel-acuan-text').value = savedImppContext.title; }
             initIlpDropdowns();
             activateStep('imppel-step-2');
             document.getElementById('workflow-title').scrollIntoView({ behavior: 'smooth' });
@@ -1277,54 +1064,29 @@
         function downloadPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'pt', 'a4');
-            
-            doc.setFontSize(14);
-            doc.setFont("helvetica", "bold");
+            doc.setFontSize(14); doc.setFont("helvetica", "bold");
             doc.text("KOLEKSI DOKUMEN INDIKATOR MUTU PUSKESMAS", 40, 40);
             
             let currentY = 70;
             const tables = document.querySelectorAll('#collection-output table');
-            
-            if (tables.length === 0) {
-                showModal("Tidak ada data untuk diunduh.");
-                return;
-            }
+            if (tables.length === 0) { showModal("Tidak ada data untuk diunduh."); return; }
 
             tables.forEach((table, index) => {
                 const isImpp = index === 0 && savedImppContext.html !== "";
                 const headerText = isImpp ? "PROFIL A: IMPP (MAKRO)" : `PROFIL B: IMPPel (UNIT) #${isImpp ? index : index + 1}`;
-                
-                doc.setFontSize(12);
-                doc.setFont("helvetica", "bold");
+                doc.setFontSize(12); doc.setFont("helvetica", "bold");
                 doc.text(headerText, 40, currentY);
                 
                 doc.autoTable({
-                    html: table,
-                    startY: currentY + 15,
-                    theme: 'grid',
-                    styles: { 
-                        fontSize: 10, 
-                        font: 'helvetica',
-                        cellPadding: 6,
-                        lineColor: [200, 200, 200]
-                    },
-                    headStyles: {
-                        fillColor: [240, 240, 240],
-                        textColor: [0, 0, 0],
-                        fontStyle: 'bold'
-                    },
-                    columnStyles: {
-                        0: { cellWidth: 120, fontStyle: 'bold' } 
-                    },
+                    html: table, startY: currentY + 15, theme: 'grid',
+                    styles: { fontSize: 10, font: 'helvetica', cellPadding: 6, lineColor: [200, 200, 200] },
+                    headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
+                    columnStyles: { 0: { cellWidth: 120, fontStyle: 'bold' } },
                     margin: { left: 40, right: 40 }
                 });
                 
                 currentY = doc.lastAutoTable.finalY + 30;
-                
-                if (currentY > 750 && index < tables.length - 1) {
-                    doc.addPage();
-                    currentY = 40;
-                }
+                if (currentY > 750 && index < tables.length - 1) { doc.addPage(); currentY = 40; }
             });
 
             const pdfBlob = doc.output('blob');
@@ -1335,49 +1097,33 @@
             
             const url = URL.createObjectURL(finalBlob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `PROFIL INDIKATOR MUTU PRIORITAS.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            }, 100);
+            a.href = url; a.download = `PROFIL INDIKATOR MUTU PRIORITAS.pdf`;
+            document.body.appendChild(a); a.click();
+            setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
         }
         
         function downloadTXT() {
             const tables = document.querySelectorAll('#collection-output table');
-            if (tables.length === 0) { showModal('Tidak ada data profil untuk diunduh.'); return; }
+            if (tables.length === 0) { showModal('Tidak ada data profil.'); return; }
 
             function nodeToText(node) {
                 let text = '';
                 if (node.nodeType === Node.TEXT_NODE) return node.textContent;
                 if (node.nodeType !== Node.ELEMENT_NODE) return '';
                 const tag = node.tagName.toLowerCase();
-                
-                if (tag === 'br') text += '\n';
-                else if (tag === 'li') text += '\n- ';
-                
+                if (tag === 'br') text += '\n'; else if (tag === 'li') text += '\n- ';
                 for (const child of node.childNodes) text += nodeToText(child);
                 if (tag === 'p' || tag === 'div' || tag === 'ul') if (!text.endsWith('\n')) text += '\n';
-                
                 return text;
             }
 
-            let textContent = `==================================================\n`;
-            textContent += `     KOLEKSI DOKUMEN INDIKATOR MUTU PUSKESMAS     \n`;
-            textContent += `==================================================\n\n`;
-            
-            if (savedImppContext.title) {
-                 textContent += `[ACUAN UTAMA]\nIMPP STRATEGIS: ${savedImppContext.title}\n--------------------------------------------------\n\n`;
-            }
+            let textContent = `==================================================\n     KOLEKSI DOKUMEN INDIKATOR MUTU PUSKESMAS     \n==================================================\n\n`;
+            if (savedImppContext.title) { textContent += `[ACUAN UTAMA]\nIMPP STRATEGIS: ${savedImppContext.title}\n--------------------------------------------------\n\n`; }
 
             tables.forEach((table, index) => {
                 const isImpp = index === 0 && savedImppContext.html !== "";
                 const headerText = isImpp ? "PROFIL A: IMPP (MAKRO)" : `PROFIL B: IMPPel (UNIT) #${isImpp ? index : index + 1}`;
-                
                 textContent += `\n>>> ${headerText} <<<\n\n`;
-
                 table.querySelectorAll('tr').forEach(row => {
                     const cells = row.querySelectorAll('th, td');
                     if (cells.length === 2) {
@@ -1390,14 +1136,13 @@
             });
 
             const blob = new Blob([textContent.trim()], { type: 'text/plain;charset=utf-8' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
             a.download = `PROFIL INDIKATOR MUTU PRIORITAS.txt`;
-            document.body.appendChild(a);
-            a.click();
-            
+            document.body.appendChild(a); a.click();
             setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(a.href); }, 0);
         }
+        
+        document.addEventListener('contextmenu', event => { if (event.target.closest('.no-select')) { event.preventDefault(); } });
     </script>
 </body>
 </html>
