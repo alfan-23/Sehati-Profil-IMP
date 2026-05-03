@@ -378,23 +378,30 @@
         };
 
         let userApiKey = '';
-        let activeModel = 'gemini-1.5-flash'; 
+        let activeModel = 'gemini-2.5-flash'; 
         let savedImppContext = { title: "", detail: "", html: "" }; 
         let imppelCollection = []; 
         let imppInputState = { category: "", description: "" };
 
+        // Variabel penampung Siklus Rotasi Otomatis
+        let isWaitingForRetry = null;
+        let lastFailedAction = null;
+
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
             const keyFromUrl = urlParams.get('key');
+            const modelFromUrl = urlParams.get('model');
 
-            if (keyFromUrl) {
-                sessionStorage.setItem('sehati_api_key', keyFromUrl);
+            if (keyFromUrl) sessionStorage.setItem('sehati_api_key', keyFromUrl);
+            if (modelFromUrl) sessionStorage.setItem('sehati_ai_model', modelFromUrl);
+
+            if (keyFromUrl || modelFromUrl) {
                 const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
                 window.history.replaceState({path: cleanUrl}, '', cleanUrl);
             }
 
-            const sessionKey = sessionStorage.getItem('sehati_api_key');
-            if (sessionKey) userApiKey = sessionKey;
+            userApiKey = sessionStorage.getItem('sehati_api_key') || localStorage.getItem('ilp_api_key') || '';
+            activeModel = sessionStorage.getItem('sehati_ai_model') || localStorage.getItem('ilp_active_model') || 'gemini-2.5-flash';
             
             loadFromStorage();
             
@@ -405,13 +412,50 @@
             }
 
             window.addEventListener('message', (event) => {
-                if (event.data && event.data.type === 'UPDATE_API_KEY') {
+                if (event.data && event.data.type === 'UPDATE_CONFIG') {
                     userApiKey = event.data.key;
+                    activeModel = event.data.model || 'gemini-2.5-flash';
+                    
                     document.getElementById('api-key-input').value = userApiKey;
+                    document.getElementById('active-model-display').innerText = activeModel;
+                    
                     sessionStorage.setItem('sehati_api_key', userApiKey);
-                    showModal("🔄 Sesi dipertahankan! API Key telah diputar otomatis.");
+                    sessionStorage.setItem('sehati_ai_model', activeModel);
+                    
+                    if (isWaitingForRetry) {
+                        const pfLoaderP = document.querySelector('#profile-loader p');
+                        if (pfLoaderP) pfLoaderP.innerText = `Melanjutkan dengan ${activeModel}...`;
+                        const imppLoaderP = document.querySelector('#impp-loader p');
+                        if (imppLoaderP) imppLoaderP.innerText = `Melanjutkan dengan ${activeModel}...`;
+                        const imppelLoaderP = document.querySelector('#imppel-loader p');
+                        if (imppelLoaderP) imppelLoaderP.innerText = `Melanjutkan dengan ${activeModel}...`;
+
+                        const retryFunc = isWaitingForRetry;
+                        isWaitingForRetry = null;
+                        setTimeout(() => retryFunc(), 1000);
+                    }
+                }
+
+                if (event.data && event.data.type === 'STOP_RETRY') {
+                    isWaitingForRetry = null;
+                    document.getElementById('impp-loader').classList.add('hidden');
+                    document.getElementById('imppel-loader').classList.add('hidden');
+                    document.getElementById('profile-loader').classList.add('hidden');
+                    
+                    showModal("❌ Siklus Terhenti: Seluruh API Key dan Model gagal memproses. Kuota mungkin telah habis secara menyeluruh.");
+                    
+                    setTimeout(() => {
+                        const cobaLagi = confirm("Sistem telah mencoba semua Slot API Key dan Model AI, namun semuanya kehabisan kuota atau gagal.\n\nApakah Anda ingin mencoba memproses ulang dari awal?");
+                        if (cobaLagi && lastFailedAction) {
+                            lastFailedAction();
+                        }
+                    }, 500);
                 }
             });
+
+            if (!userApiKey && window.parent !== window) {
+                window.parent.postMessage({ type: 'REQUEST_CONFIG' }, '*');
+            }
 
             document.getElementById('selection-screen').classList.remove('hidden');
             document.getElementById('workflow-container').classList.add('hidden');
@@ -419,10 +463,6 @@
         };
 
         function loadFromStorage() {
-            const storedKey = localStorage.getItem('ilp_api_key');
-            if (storedKey && !userApiKey) userApiKey = storedKey;
-            const storedModel = localStorage.getItem('ilp_active_model');
-            if (storedModel) activeModel = storedModel;
             const storedImpp = localStorage.getItem('ilp_impp_context');
             if (storedImpp) savedImppContext = JSON.parse(storedImpp);
             const storedImppel = localStorage.getItem('ilp_imppel_collection');
@@ -446,12 +486,9 @@
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key.trim()}`);
                 if (!response.ok) throw new Error("API Key tidak valid.");
                 
-                const data = await response.json();
-                const validModels = data.models.filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent") && m.name.includes("gemini"));
-                let selected = validModels.find(m => m.name.includes('1.5-flash')) || validModels.find(m => m.name.includes('flash')) || validModels[0];
-                
-                activeModel = selected.name.replace('models/', ''); userApiKey = key.trim();
-                localStorage.setItem('ilp_api_key', userApiKey); localStorage.setItem('ilp_active_model', activeModel);
+                userApiKey = key.trim();
+                localStorage.setItem('ilp_api_key', userApiKey); 
+                localStorage.setItem('ilp_active_model', activeModel);
                 
                 statusEl.textContent = 'Valid!'; statusEl.className = 'text-xs mt-2 text-emerald-500 font-bold text-right block';
                 document.getElementById('active-model-display').innerText = activeModel;
@@ -634,31 +671,43 @@
             sel.innerHTML = `<option value="">-- Pilih --</option>`; sel.disabled = true;
         }
 
+        // === FUNGSI GENERATOR AI DENGAN SIKLUS ROTASI (AUTO-RETRY DARI DASHBOARD) ===
         async function callGeminiJson(prompt) {
             if (!userApiKey) { showModal('API Key belum diatur. Silakan cek di menu utama.'); goHome(); return null; }
-            let modelName = activeModel || 'gemini-1.5-flash';
-            if (modelName.includes("Menunggu") || modelName.includes("Error")) modelName = 'gemini-1.5-flash';
+            let modelName = activeModel || 'gemini-2.5-flash';
+            if (modelName.includes("Menunggu") || modelName.includes("Error")) modelName = 'gemini-2.5-flash';
 
             const payload = { 
                 contents: [{ parts: [{ text: prompt }] }],
                 generationConfig: { responseMimeType: "application/json", temperature: 0.2 } 
             };
 
-            for (let i = 0; i < 3; i++) {
+            let delay = 1000;
+            for (let i = 0; i < 5; i++) {
                 try {
                     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${userApiKey}`, {
                         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
                     });
                     if (!response.ok) {
-                        if (response.status === 429) throw new Error("RATE_LIMIT");
-                        throw new Error(`HTTP ${response.status}`);
+                        if (response.status === 429 || response.status === 404 || response.status === 403 || response.status >= 500) {
+                             if (window.parent !== window) {
+                                  window.parent.postMessage({ type: 'API_ERROR', code: response.status }, '*');
+                             }
+                             throw new Error("API_FAIL_ROTATE");
+                        }
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData?.error?.message || `HTTP ${response.status}`);
                     }
                     const data = await response.json();
+                    if (window.parent !== window) {
+                        window.parent.postMessage({ type: 'API_SUCCESS' }, '*');
+                    }
                     return JSON.parse(data.candidates[0].content.parts[0].text);
                 } catch (error) {
-                    if (error.message === "RATE_LIMIT") window.parent.postMessage({ type: 'API_ERROR', code: 429 }, '*');
-                    if (i === 2) { showModal(`Gagal memproses AI: ${error.message}`); return null; }
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    if (error.message === "API_FAIL_ROTATE") throw error;
+                    if (i === 4) { throw error; }
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
                 }
             }
         }
@@ -673,17 +722,30 @@
                 activateStep('impp-step-2');
             }
             document.getElementById('impp-suggestions-list').innerHTML = ''; document.getElementById('custom-impp-title').value = ''; document.getElementById('impp-loader').classList.remove('hidden');
+            document.querySelector('#impp-loader p').innerText = "Menyusun Rumusan Strategis...";
 
             const prompt = `Anda ahli manajemen mutu. Analisis masalah: Kategori "${imppInputState.category}", Deskripsi: "${imppInputState.description}". Berikan 5 judul IMPP strategis. Output WAJIB JSON dengan format array of strings. Skema: ["Judul 1", "Judul 2", ...]`;
-            const suggestions = await callGeminiJson(prompt);
-            document.getElementById('impp-loader').classList.add('hidden');
             
-            if (suggestions && Array.isArray(suggestions)) {
-                const listDiv = document.getElementById('impp-suggestions-list');
-                suggestions.forEach(title => {
-                    listDiv.innerHTML += `<label class="flex items-center p-4 bg-white border border-slate-200 rounded-xl hover:border-blue-400 cursor-pointer shadow-sm transition-all"><input type="radio" name="impp_sugg" value="${title}" class="h-4 w-4 text-blue-600 focus:ring-blue-500" onchange="document.getElementById('custom-impp-title').value = this.value"><span class="ml-3 text-slate-700 font-bold">${title}</span></label>`;
-                });
-            } else { document.getElementById('impp-suggestions-list').innerHTML = '<p class="text-red-500 font-bold">Gagal memuat saran AI.</p>'; }
+            try {
+                const suggestions = await callGeminiJson(prompt);
+                document.getElementById('impp-loader').classList.add('hidden');
+                
+                if (suggestions && Array.isArray(suggestions)) {
+                    const listDiv = document.getElementById('impp-suggestions-list');
+                    suggestions.forEach(title => {
+                        listDiv.innerHTML += `<label class="flex items-center p-4 bg-white border border-slate-200 rounded-xl hover:border-blue-400 cursor-pointer shadow-sm transition-all"><input type="radio" name="impp_sugg" value="${title}" class="h-4 w-4 text-blue-600 focus:ring-blue-500" onchange="document.getElementById('custom-impp-title').value = this.value"><span class="ml-3 text-slate-700 font-bold">${title}</span></label>`;
+                    });
+                } else { document.getElementById('impp-suggestions-list').innerHTML = '<p class="text-red-500 font-bold">Gagal memuat saran AI.</p>'; }
+            } catch(e) {
+                if (e.message === "API_FAIL_ROTATE") {
+                    document.querySelector('#impp-loader p').innerText = "KUOTA LIMIT. MENUNGGU ROTASI MODEL...";
+                    isWaitingForRetry = () => getImppSuggestions(true);
+                    lastFailedAction = () => getImppSuggestions(true);
+                } else {
+                    document.getElementById('impp-loader').classList.add('hidden');
+                    document.getElementById('impp-suggestions-list').innerHTML = `<p class="text-red-500 font-bold">Error: ${e.message}</p>`;
+                }
+            }
         }
 
         async function getImppelSuggestions(isRegeneration = false) {
@@ -692,17 +754,30 @@
             if (!acuanText.trim()) { showModal("Teks IMPP Acuan tidak boleh kosong."); return; }
             if (!isRegeneration) activateStep('imppel-step-3');
             document.getElementById('imppel-suggestions-list').innerHTML = ''; document.getElementById('custom-imppel-title').value = ''; document.getElementById('imppel-loader').classList.remove('hidden');
+            document.querySelector('#imppel-loader p').innerText = "Menyelaraskan Hierarki...";
 
             const prompt = `Rumuskan 5 judul IMPPel teknis unit.\nAcuan Utama: "${acuanText}"\nFokus Unit ILP: Klaster: ${klaster}, Program: ${program}, Kegiatan: ${kegiatan}, Rincian: ${sub}\nOutput WAJIB JSON array of strings. Skema: ["Judul 1", "Judul 2", ...]`;
-            const suggestions = await callGeminiJson(prompt);
-            document.getElementById('imppel-loader').classList.add('hidden');
             
-            if (suggestions && Array.isArray(suggestions)) {
-                const listDiv = document.getElementById('imppel-suggestions-list');
-                suggestions.forEach(title => {
-                    listDiv.innerHTML += `<label class="flex items-center p-4 bg-white border border-slate-200 rounded-xl hover:border-emerald-400 cursor-pointer shadow-sm transition-all"><input type="radio" name="imppel_sugg" value="${title}" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500" onchange="document.getElementById('custom-imppel-title').value = this.value"><span class="ml-3 text-slate-700 font-bold">${title}</span></label>`;
-                });
-            } else { document.getElementById('imppel-suggestions-list').innerHTML = '<p class="text-red-500 font-bold">Gagal memuat saran AI.</p>'; }
+            try {
+                const suggestions = await callGeminiJson(prompt);
+                document.getElementById('imppel-loader').classList.add('hidden');
+                
+                if (suggestions && Array.isArray(suggestions)) {
+                    const listDiv = document.getElementById('imppel-suggestions-list');
+                    suggestions.forEach(title => {
+                        listDiv.innerHTML += `<label class="flex items-center p-4 bg-white border border-slate-200 rounded-xl hover:border-emerald-400 cursor-pointer shadow-sm transition-all"><input type="radio" name="imppel_sugg" value="${title}" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500" onchange="document.getElementById('custom-imppel-title').value = this.value"><span class="ml-3 text-slate-700 font-bold">${title}</span></label>`;
+                    });
+                } else { document.getElementById('imppel-suggestions-list').innerHTML = '<p class="text-red-500 font-bold">Gagal memuat saran AI.</p>'; }
+            } catch (e) {
+                if (e.message === "API_FAIL_ROTATE") {
+                    document.querySelector('#imppel-loader p').innerText = "KUOTA LIMIT. MENUNGGU ROTASI MODEL...";
+                    isWaitingForRetry = () => getImppelSuggestions(true);
+                    lastFailedAction = () => getImppelSuggestions(true);
+                } else {
+                    document.getElementById('imppel-loader').classList.add('hidden');
+                    document.getElementById('imppel-suggestions-list').innerHTML = `<p class="text-red-500 font-bold">Error: ${e.message}</p>`;
+                }
+            }
         }
 
         async function generateProfile(type) {
@@ -722,6 +797,7 @@
 
             activateStep('collection-step');
             document.getElementById('profile-loader').classList.remove('hidden');
+            document.querySelector('#profile-loader p').innerText = "Menyusun Format Kamus...";
             document.getElementById('collection-output-container').classList.add('hidden');
 
             const prompt = `Anda ahli manajemen mutu pelayanan kesehatan. Buat isi kamus/profil indikator mutu untuk judul: "${finalTitle}". 
@@ -751,52 +827,64 @@
               "penanggung_jawab": "string (Saran jabatan PIC penanggung jawab di level puskesmas)"
             }`;
 
-            const data = await callGeminiJson(prompt);
-            document.getElementById('profile-loader').classList.add('hidden');
-            
-            if (data) {
-                let inklusiList = data.inklusi && data.inklusi.length > 0 ? data.inklusi.map(i => `<li>${i}</li>`).join('') : `<li>Tidak ada kriteria inklusi spesifik</li>`;
-                let eksklusiList = data.eksklusi && data.eksklusi.length > 0 ? data.eksklusi.map(i => `<li>${i}</li>`).join('') : `<li>Tidak ada kriteria eksklusi (N/A)</li>`;
+            try {
+                const data = await callGeminiJson(prompt);
+                document.getElementById('profile-loader').classList.add('hidden');
+                
+                if (data) {
+                    let inklusiList = data.inklusi && data.inklusi.length > 0 ? data.inklusi.map(i => `<li>${i}</li>`).join('') : `<li>Tidak ada kriteria inklusi spesifik</li>`;
+                    let eksklusiList = data.eksklusi && data.eksklusi.length > 0 ? data.eksklusi.map(i => `<li>${i}</li>`).join('') : `<li>Tidak ada kriteria eksklusi (N/A)</li>`;
 
-                const cleanHtml = `
-                    <table>
-                        <tbody>
-                            <tr><th>Judul Indikator</th><td>${finalTitle}</td></tr>
-                            <tr><th>Dasar Pemikiran</th><td>${data.dasar_pemikiran || '-'}</td></tr>
-                            <tr><th>Dimensi Mutu</th><td>${data.dimensi_mutu || '-'}</td></tr>
-                            <tr><th>Tujuan</th><td>${data.tujuan || '-'}</td></tr>
-                            <tr><th>Definisi Operasional</th><td>${data.definisi_operasional || '-'}</td></tr>
-                            <tr><th>Jenis Indikator</th><td>${data.jenis_indikator || '-'}</td></tr>
-                            <tr><th>Satuan Pengukuran</th><td>${data.satuan_pengukuran || '-'}</td></tr>
-                            <tr><th>Numerator (Pembilang)</th><td>${data.numerator || '-'}</td></tr>
-                            <tr><th>Denominator (Penyebut)</th><td>${data.denominator || '-'}</td></tr>
-                            <tr><th>Target Pencapaian</th><td><strong style="color:#047857">${data.target_pencapaian || '-'}</strong></td></tr>
-                            <tr><th>Kriteria Inklusi & Eksklusi</th><td>
-                                <strong>Inklusi:</strong><ul>${inklusiList}</ul>
-                                <strong style="margin-top:8px;display:block;">Eksklusi:</strong><ul>${eksklusiList}</ul>
-                            </td></tr>
-                            <tr><th>Formula Matematis</th><td><em>${data.formula || '-'}</em></td></tr>
-                            <tr><th>Metode Pengumpulan Data</th><td>${data.metode_pengumpulan || '-'}</td></tr>
-                            <tr><th>Sumber Data</th><td>${data.sumber_data || '-'}</td></tr>
-                            <tr><th>Instrumen Pengambilan Data</th><td>${data.instrumen || '-'}</td></tr>
-                            <tr><th>Besar Sampel</th><td>${data.besar_sampel || '-'}</td></tr>
-                            <tr><th>Cara Pengambilan Sampel</th><td>${data.cara_pengambilan_sampel || '-'}</td></tr>
-                            <tr><th>Periode Pengumpulan Data</th><td>${data.periode_pengumpulan || '-'}</td></tr>
-                            <tr><th>Penyajian Data</th><td>${data.penyajian_data || '-'}</td></tr>
-                            <tr><th>Periode Analisis & Pelaporan</th><td>${data.periode_analisis || '-'}</td></tr>
-                            <tr><th>Penanggung Jawab</th><td><strong style="color:#1e40af">${data.penanggung_jawab || '-'}</strong></td></tr>
-                        </tbody>
-                    </table>
-                `;
-                
-                if (type === 'impp') { savedImppContext.html = cleanHtml; } 
-                else if (type === 'imppel') { imppelCollection.push({ title: finalTitle, html: cleanHtml }); }
-                
-                saveToStorage(); renderCollection();
-                document.getElementById('collection-step').scrollIntoView({ behavior: 'smooth' });
-            } else {
-                showModal('Gagal menyusun profil indikator dari AI. Coba klik lagi.');
-                document.getElementById('collection-output-container').classList.remove('hidden');
+                    const cleanHtml = `
+                        <table>
+                            <tbody>
+                                <tr><th>Judul Indikator</th><td>${finalTitle}</td></tr>
+                                <tr><th>Dasar Pemikiran</th><td>${data.dasar_pemikiran || '-'}</td></tr>
+                                <tr><th>Dimensi Mutu</th><td>${data.dimensi_mutu || '-'}</td></tr>
+                                <tr><th>Tujuan</th><td>${data.tujuan || '-'}</td></tr>
+                                <tr><th>Definisi Operasional</th><td>${data.definisi_operasional || '-'}</td></tr>
+                                <tr><th>Jenis Indikator</th><td>${data.jenis_indikator || '-'}</td></tr>
+                                <tr><th>Satuan Pengukuran</th><td>${data.satuan_pengukuran || '-'}</td></tr>
+                                <tr><th>Numerator (Pembilang)</th><td>${data.numerator || '-'}</td></tr>
+                                <tr><th>Denominator (Penyebut)</th><td>${data.denominator || '-'}</td></tr>
+                                <tr><th>Target Pencapaian</th><td><strong style="color:#047857">${data.target_pencapaian || '-'}</strong></td></tr>
+                                <tr><th>Kriteria Inklusi & Eksklusi</th><td>
+                                    <strong>Inklusi:</strong><ul>${inklusiList}</ul>
+                                    <strong style="margin-top:8px;display:block;">Eksklusi:</strong><ul>${eksklusiList}</ul>
+                                </td></tr>
+                                <tr><th>Formula Matematis</th><td><em>${data.formula || '-'}</em></td></tr>
+                                <tr><th>Metode Pengumpulan Data</th><td>${data.metode_pengumpulan || '-'}</td></tr>
+                                <tr><th>Sumber Data</th><td>${data.sumber_data || '-'}</td></tr>
+                                <tr><th>Instrumen Pengambilan Data</th><td>${data.instrumen || '-'}</td></tr>
+                                <tr><th>Besar Sampel</th><td>${data.besar_sampel || '-'}</td></tr>
+                                <tr><th>Cara Pengambilan Sampel</th><td>${data.cara_pengambilan_sampel || '-'}</td></tr>
+                                <tr><th>Periode Pengumpulan Data</th><td>${data.periode_pengumpulan || '-'}</td></tr>
+                                <tr><th>Penyajian Data</th><td>${data.penyajian_data || '-'}</td></tr>
+                                <tr><th>Periode Analisis & Pelaporan</th><td>${data.periode_analisis || '-'}</td></tr>
+                                <tr><th>Penanggung Jawab</th><td><strong style="color:#1e40af">${data.penanggung_jawab || '-'}</strong></td></tr>
+                            </tbody>
+                        </table>
+                    `;
+                    
+                    if (type === 'impp') { savedImppContext.html = cleanHtml; } 
+                    else if (type === 'imppel') { imppelCollection.push({ title: finalTitle, html: cleanHtml }); }
+                    
+                    saveToStorage(); renderCollection();
+                    document.getElementById('collection-step').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    showModal('Gagal menyusun profil indikator dari AI. Coba klik lagi.');
+                    document.getElementById('collection-output-container').classList.remove('hidden');
+                }
+            } catch(e) {
+                if (e.message === "API_FAIL_ROTATE") {
+                    document.querySelector('#profile-loader p').innerText = "KUOTA LIMIT. MENUNGGU ROTASI MODEL...";
+                    isWaitingForRetry = () => generateProfile(type);
+                    lastFailedAction = () => generateProfile(type);
+                } else {
+                    document.getElementById('profile-loader').classList.add('hidden');
+                    showModal(`Gagal memproses: ${e.message}`);
+                    document.getElementById('collection-output-container').classList.remove('hidden');
+                }
             }
         }
 
