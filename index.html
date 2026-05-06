@@ -802,10 +802,12 @@
 
             const prompt = `Anda ahli manajemen mutu pelayanan kesehatan. Buat isi kamus/profil indikator mutu untuk judul: "${finalTitle}". 
             Konteks Analisis: ${contextStr}.
+            PENTING: Gunakan 7 Dimensi Mutu Kemenkes RI sebagai acuan kategori pada field "dimensi_mutu". 
+            Pilih salah satu (atau beberapa jika relevan): Aman (Safe), Berorientasi pada Pasien (People-Centred), Efisien (Efficient), Efektif (Effective), Adil (Equitable), Tepat Waktu (Timely), atau Terintegrasi (Integrated).
             PENTING: Output Anda HARUS berformat JSON persis dengan skema berikut, TIDAK BOLEH ADA TEKS LAIN.
             {
               "dasar_pemikiran": "string (alasan ilmiah/logis)",
-              "dimensi_mutu": "string (cth: Efektivitas, Keselamatan)",
+              "dimensi_mutu": "Pilih dari 7 dimensi mutu Kemenkes",
               "tujuan": "string (tujuan spesifik diukurnya indikator ini)",
               "definisi_operasional": "string (penjelasan teknis/batasan yang tidak multi tafsir)",
               "jenis_indikator": "string (cth: Proses / Output / Outcome)",
